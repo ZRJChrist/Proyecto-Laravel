@@ -19,20 +19,34 @@
 </head>
 
 <body>
-    <div class="d-flex" style="height: 100%">
-        <div class="w-auto bg-white">
-            @include('template.navbar')
+    <div id="main">
+        <div id="nav_content">
+            <nav>
+                @include('template.navbar')
+            </nav>
+            <section id="content">
+                @yield('content')
+            </section>
         </div>
-        <div class="w-auto mt-5">
-            @yield('content')
-        </div>
+        <footer>
+            <!-- Sección de contacto -->
+            <section id="contacto" class="py-5">
+                <div class="container">
+                    <h2 class="text-center mb-4">Contáctanos</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>Para más información, contáctanos:</p>
+                            <ul>
+                                <li>Dirección: [Dirección de tu empresa]</li>
+                                <li>Teléfono: [Número de teléfono]</li>
+                                <li>Email: [Correo electrónico]</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </footer>
     </div>
-
-    <!-- Pie de página -->
-    <footer class="py-4 text-white text-center">
-        <p>&copy; 2023 Bunglebuild. Todos los derechos reservados.</p>
-    </footer>
-
 </body>
 
 </html>

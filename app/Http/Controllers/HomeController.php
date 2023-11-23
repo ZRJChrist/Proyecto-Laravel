@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SessionManager;
+
 class HomeController
 {
     public function getHome()
     {
-        session_start();
+        SessionManager::startSession();
         return view('content.home');
     }
 }

@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Validator;
 use App\Models\User;
+use App\Models\SessionManager;
 use Illuminate\Http\Request;
 
 class RegisterController
 {
     public function getLogin()
     {
-        session_start();
-        if (isset($_SESSION['user_id'])) {
+
+        if (SessionManager::read('user_id')) {
             return redirect()->route('home');
         } else {
             return view('register');
@@ -34,7 +35,6 @@ class RegisterController
             if ($result['success']) {
                 return redirect()->route('login');
             } else {
-                //dd($result);
                 return redirect()->route('register')->with('error', ['errorDB' => $result['message']]);
             }
         }

@@ -54,23 +54,19 @@
             </div>
         </div>
     </section>
-
-    <!-- Sección de contacto -->
-    <section id="contacto" class="py-5">
+    <section id="proyectos" class="bg-light py-5">
         <div class="container">
-            <h2 class="text-center mb-4">Contáctanos</h2>
+            <h2 class="text-center mb-4">Nuestros Proyectos</h2>
             <div class="row">
-                <div class="col-md-6">
-                    <p>Para más información, contáctanos:</p>
-                    <ul>
-                        <li>Dirección: [Dirección de tu empresa]</li>
-                        <li>Teléfono: [Número de teléfono]</li>
-                        <li>Email: [Correo electrónico]</li>
-                    </ul>
-                </div>
-                <div class="col-md-6">
-                    <!-- Agrega un formulario de contacto aquí si es necesario -->
-                </div>
+                <!-- Puedes agregar imágenes y descripciones de tus proyectos aquí -->
+            </div>
+        </div>
+    </section>
+    <section id="proyectos" class="bg-light py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Nuestros Proyectos</h2>
+            <div class="row">
+                <!-- Puedes agregar imágenes y descripciones de tus proyectos aquí -->
             </div>
         </div>
     </section>

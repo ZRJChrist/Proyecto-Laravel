@@ -1,78 +1,31 @@
-:root {
-    --primer-color: #eee9ef;
-    --segundo-color: #025ea7;
-    --tercer-color: #1c5d57;
-    --cuarto-color: #ff3207;
-}
-
 body {
     font-family: 'Lexend', sans-serif;
-    background-color: var(--primer-color);
 }
 
-.navbar {
-    /* border: 1px solid black; */
-    background-color: var(--primer-color);
+#main {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    height: 100vh;
 }
 
-.navbar a {
-    color: black;
+#nav_content {
+    display: flex;
+    width: 100%;
 }
 
-.btn {
-    color: black;
-    border: 2px solid black;
-    border-radius: 1.5em;
-    background-color: transparent;
-    -webkit-border-radius: 1.5em;
-    -moz-border-radius: 1.5em;
-    -ms-border-radius: 1.5em;
-    -o-border-radius: 1.5em;
+#nav_content nav {
+    padding: 1em;
+    width: 20%;
+    height: 100%;
 }
 
-.btn:hover {
-    color: white;
-    border: 2px solid black;
-    background-color: black;
-}
-
-.btn:active {
-    border: 2px solid black;
-    background-color: var(--tercer-color);
-}
-
-.btn:focus:active {
-    border: 2px solid black;
-    background-color: var(--tercer-color);
-}
-
-section {
-    border: 2px solid black;
-    margin: auto;
-    margin-bottom: 2em;
-}
-
-section h2 {
-    font-weight: 600;
-}
-
-.servicio {
-    padding: 1.5em;
-    margin: 1.5em;
-    border: 2px solid black;
-}
-
-.jumbotron,
-#servicios,
-#proyectos,
-#contacto {
-    width: 95%;
-}
-
-.jumbotron h1 {
-    font-weight: 700;
+#nav_content #content {
+    margin-top: 5%;
+    padding: 1em;
+    width: 80%;
 }
 
 footer {
-    background-color: var(--tercer-color);
+    width: 100%;
 }

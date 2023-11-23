@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AddController;;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,3 +28,10 @@ Route::get('/registro', [RegisterController::class, 'getLogin'])->name('register
 Route::post('/registro', [RegisterController::class, 'attentRegister'])->name('PostRegister');
 
 Route::get('/', [HomeController::class, 'getHome'])->name('home');
+
+Route::get('/Add', [AddController::class, 'get'])->name('addTask');
+Route::post('/Add', [AddController::class, 'post'])->name('addPost');
+
+Route::get('/List', function () {
+    return view('content.list');
+})->name('listTask');

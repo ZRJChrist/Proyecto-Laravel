@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Hash;
+use App\Models\SessionManager;
 use PDOException;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -11,8 +12,7 @@ class LoginController
 {
     public function getLogin()
     {
-        session_start();
-        if (isset($_SESSION['user_id'])) {
+        if (SessionManager::read('user_id')) {
             return redirect()->route('home');
         } else {
             return view('login');
@@ -27,8 +27,7 @@ class LoginController
                 return redirect('login')->with('email', 'Email no registrado');
             }
             if (self::validateCredentials($request)) {
-                session_start();
-                $_SESSION['user_id'] = User::getUser($request['email']);
+                SessionManager::write('user_id', User::getUser($request['email']));
                 return redirect()->route('home');
                 //return redirect()->route('home')->with('user_id', User::getUser($request['email']));
             } else {
