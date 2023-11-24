@@ -2,12 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class ErrorHandler extends Model
+class ErrorHandler
 {
-    use HasFactory;
     private $errors = [];
 
     public function addError(string $field, string $description): void
@@ -28,6 +25,14 @@ class ErrorHandler extends Model
     public function getError(string $field): string
     {
         return $this->errors[$field] ?? '';
+    }
+    public function spanError(string $field): string
+    {
+        if (self::hasError($field)) {
+            return '<p class="text-danger">*' . self::getError($field) . '</p>
+            ';
+        }
+        return '';
     }
 
     public function getErrorsList(): array

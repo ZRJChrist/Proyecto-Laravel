@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-
 class Validator
 {
     private $errorHandler;
@@ -23,6 +22,10 @@ class Validator
     public function hasErrors()
     {
         return $this->errorHandler->hasErrors();
+    }
+    public function getErrorHandler()
+    {
+        return $this->errorHandler;
     }
     /**
      * Funcion para validar un input de nombre
@@ -112,6 +115,10 @@ class Validator
      */
     public function validateProvinces($id, $listProvinces, $field = 'provinces')
     {
+        if ($id == 'null') {
+            $this->errorHandler->addError($field, 'Campo obligatorio');
+            return false;
+        }
         $id = intval($id);
         if (!array_key_exists($id, $listProvinces)) {
             $this->errorHandler->addError($field, 'Valor de provincia desconocido');
@@ -119,12 +126,16 @@ class Validator
         }
         return true;
     }
-    public function validateStatus($state, $field = 'state')
+    public function validateStatus($status, $field = 'state')
     {
-        $state = strtoupper($state);
+        if ($status == 'null') {
+            $this->errorHandler->addError($field, 'Campo obligatorio');
+            return false;
+        }
+        $status = strtoupper($status);
         $validStates = ['B', 'P', 'R', 'C'];
 
-        if (!in_array($state, $validStates)) {
+        if (!in_array($status, $validStates)) {
             $this->errorHandler->addError($field, 'Valor desconocido');
             return false;
         }

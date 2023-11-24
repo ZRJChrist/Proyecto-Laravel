@@ -5,29 +5,64 @@ namespace App\Models;
 use PDO;
 use PDOException;
 use App\Models\ConectDB;
-use App\Models\Query;
-use Illuminate\Http\Client\Request;
 
 class Task
 {
-    public function __construct()
+    private $AllProperties = [];
+    private const FormProperties = [
+        'user_id',
+        'firstName',
+        'lastName',
+        'nif_cif',
+        'phoneNumber',
+        'email',
+        'description',
+        'codigoPostal',
+        'location',
+        'province_id',
+        'status_task',
+        'date_task',
+        'operario',
+        'inf_task'
+    ];
+    public static function create($request, bool $form = false)
     {
-    }
-    public function create(Request $request)
-    {
+
         $connection = ConectDB::getInstance()->getConnection();
         $connection->beginTransaction();
-        $query = $connection->prepare('INSERT INTO task (
-            user_id, description,name_person, nif_cif, email,codigoPostal,
-            location, province_id, status_task, date_task, operario
-        ) VALUES(
-            :user_id, :description, :name_person, :nif_cif, :email, :codigoPostal, :location, :province_id, :status_task, :date_task, :operario
-        )');
-        $request = $request->except('_token');
-        $query->execute([
-            'user_id' => $request['user_id'],
-            'description' => $request[''],
-        ]);
+
+        /*
+        * Utilizando array_map a cada nombre de las columnas le agregamos el doble punto ( : ),
+        * para despues poder pasar los valores con su correspondiente columna.
+        */
+        $values = self::stringColums(array_map(function ($campo) {
+            return ':' . $campo;
+        }, self::FormProperties));
+
+        $query = $connection->prepare('INSERT INTO task (' . self::stringColums(self::FormProperties) . ') 
+        VALUES(' . $values . ')');
+        if ($query->execute([
+            ':user_id' => $request['user_id'],
+            ':firstName' => $request['firstName'],
+            ':lastName' => $request['lastName'],
+            ':nif_cif' => $request['nif_cif'],
+            ':phoneNumber' => $request['phoneNumber'],
+            ':email' => $request['email'],
+            ':description' => $request['description'],
+            ':codigoPostal' => $request['codigoPostal'],
+            ':location' => $request['location'],
+            ':province_id' => $request['provinces'],
+            ':status_task' => $request['status'],
+            ':date_task' => $request['date_task'],
+            ':operario' => $request['operario'],
+            ':inf_task' => $request['inf_task'],
+        ])) {
+            $connection->commit();
+            return ['result' => true, 'message' => 'Tarea creada'];
+        } else {
+            $connection->rollBack();
+            return ['result' => false, 'message' => 'Error al crear tarea'];
+        }
     }
     public function getAll()
     {
@@ -40,5 +75,10 @@ class Task
     }
     public function update($request, $id)
     {
+    }
+    private static function stringColums($dataRequest)
+    {
+        $campos = implode(', ', $dataRequest);
+        return $campos;
     }
 }

@@ -30,6 +30,7 @@ Route::post('/registro', [RegisterController::class, 'attentRegister'])->name('P
 Route::get('/', [HomeController::class, 'getHome'])->name('home');
 
 Route::get('/Add', [AddController::class, 'get'])->name('addTask');
+
 Route::post('/Add', [AddController::class, 'post'])->name('addPost');
 
 Route::get('/List', function () {

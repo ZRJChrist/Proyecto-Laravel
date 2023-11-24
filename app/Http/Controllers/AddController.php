@@ -6,17 +6,17 @@ use App\Models\ConectDB;
 use App\Models\SessionManager;
 use App\Models\Validator;
 use Illuminate\Http\Request;
+use App\Models\Task;
 use PDO;
 
 class AddController
 {
-
     public function get()
     {
         if (SessionManager::read('user_id')) {
             $user_id = SessionManager::read('user_id');
             SessionManager::write('user', self::getDataUser($user_id));
-            return view('content.add')->with('listProvinces', self::getProvinces(),);
+            return view('content.add')->with('listProvinces', self::getProvinces());
         } else {
             return redirect()->route('home');
         }
@@ -26,7 +26,16 @@ class AddController
         $inputs = $request->except('_token');
         $formValidado = self::validateFormAdd($inputs);
 
-        dd($formValidado->getErrors(), $inputs);
+        if (!$formValidado->hasErrors()) {
+            return redirect()->route('addTask')->with('error', $formValidado->getErrorHandler());
+        } else {
+            $inputs['user_id'] = SessionManager::read('user_id');
+            if (Task::create($inputs)) {
+                return redirect()->route('listTask');
+            } else {
+                return redirect()->route('addTask');
+            }
+        }
     }
     private static function getProvinces()
     {
@@ -55,12 +64,15 @@ class AddController
         $validator->validateName($request['lastName'], 'lastName');
         $validator->validateNifcif($request['nif_cif'], 'nif_cif');
         $validator->validatePhoneNumber($request['phoneNumber'], 'phoneNumber');
-
         $listProvinces = self::getProvinces();
         $validator->validateProvinces($request['provinces'], $listProvinces, 'provinces');
         $validator->validatePostalCode($request['codigoPostal'], $request['provinces'], $listProvinces, 'codigoPostal');
         $validator->validateStatus($request['status'], 'status');
         $validator->validateDate($request['date_task'], 'date_task');
+        $validator->validateText($request['direccion'], 'direccion');
+        $validator->validateText($request['location'], 'location');
+        $validator->validateText($request['description'], 'description');
+        $validator->validateText($request['operario'], 'operario');
         return $validator;
     }
 }
