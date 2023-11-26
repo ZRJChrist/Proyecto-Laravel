@@ -9,7 +9,7 @@ class Validator
     {
         $this->errorHandler = new ErrorHandler;
     }
-    public  function sanitizeInput($data)
+    public static function sanitizeInput($data)
     {
         $data = trim($data);
         $data = htmlspecialchars($data);
@@ -34,7 +34,7 @@ class Validator
      */
     public  function validateName($value, $field = 'name')
     {
-        $value = Validator::sanitizeInput($value);
+        $value = self::sanitizeInput($value);
         if (empty($value) || $value == '') {
             $this->errorHandler->addError($field, 'Campo requerido');
             return false;
@@ -52,11 +52,13 @@ class Validator
      */
     public function validateEmail($value, $field = 'email')
     {
-        $value = Validator::sanitizeInput($value);
-        if (empty($value) || $value == '' || $value == null) {
+        $value = self::sanitizeInput($value);
+
+        if (!self::validateEmpty($value)) {
             $this->errorHandler->addError($field, 'Campo requerido');
             return false;
         }
+
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
             $this->errorHandler->addError($field, 'Debe ser un email valido');
             return false;
@@ -69,7 +71,7 @@ class Validator
      */
     public function validatePassword($value, $field = 'password')
     {
-        $value = Validator::sanitizeInput($value);
+        $value = self::sanitizeInput($value);
         if (empty($value)) {
             $this->errorHandler->addError($field, 'Campo requerido');
             return false;
@@ -161,8 +163,10 @@ class Validator
             $this->errorHandler->addError($field, 'Campo requerido');
             return false;
         }
+
         $provinceCode = substr($postalCode, 0, 2);
-        if (!array_key_exists($provinceId, $listProvince)) {
+        //dd($provinceCode);
+        if (!array_key_exists(intval($provinceCode), $listProvince)) {
             $this->errorHandler->addError($field, 'Codigo desconocido');
             return false;
         }
@@ -184,6 +188,18 @@ class Validator
         }
         if (!preg_match('/^(6|7)\d{8}$/', $phoneNumber)) {
             $this->errorHandler->addError($field, 'Formato invalido');
+            return false;
+        }
+        return true;
+    }
+    public function validateOperario($id, $listOperarios, $field = 'operario')
+    {
+        if ($id == 'null') {
+            $this->errorHandler->addError($field, 'Campo obligatorio');
+            return false;
+        }
+        if (!array_key_exists($id, $listOperarios)) {
+            $this->errorHandler->addError($field, 'Valor desconocido');
             return false;
         }
         return true;

@@ -4,9 +4,9 @@
 
 
 @section('content')
-    <div class="container-fluid d-flex align-items-center justify-content-center" style="height: 80vh">
+    <div class="container-fluid d-flex align-items-center justify-content-center" style="height: auto">
 
-        <div class="p-4 shadow-md mt-5 m-auto " style="width: 24rem; border: 2px solid black;">
+        <div class="p-4 shadow-md mt-5 m-auto hover-shadow " style="width: 24em;">
             <h2 class="text-2xl font-weight-bold mb-4">Iniciar sesión</h2>
 
             @if (session('error'))

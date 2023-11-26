@@ -27,7 +27,7 @@ class SessionManager
         if (!is_string($key))
             return ['result' => false, 'message' => 'Value of key ' . $key . ' is not a string'];
         self::startSession();
-        if (isset($_SESSION[$key])) {
+        if (isset($_SESSION[$key]) && null !== $_SESSION[$key]) {
             self::_age();
             if ($child == false) {
                 return $_SESSION[$key];

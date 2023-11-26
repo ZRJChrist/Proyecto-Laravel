@@ -15,7 +15,7 @@ class LoginController
         if (SessionManager::read('user_id')) {
             return redirect()->route('home');
         } else {
-            return view('login');
+            return view('content.login');
         }
     }
 
@@ -29,7 +29,6 @@ class LoginController
             if (self::validateCredentials($request)) {
                 SessionManager::write('user_id', User::getUser($request['email']));
                 return redirect()->route('home');
-                //return redirect()->route('home')->with('user_id', User::getUser($request['email']));
             } else {
                 return redirect('login')->with('password', 'Contraseña incorrecta');
             }

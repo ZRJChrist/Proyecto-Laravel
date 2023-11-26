@@ -20,6 +20,14 @@ body {
     height: 100%;
 }
 
+nav:hover {
+    background-color: whitesmoke;
+}
+
+#content {
+    position: relative;
+}
+
 #nav_content #content {
     margin-top: 5%;
     padding: 1em;

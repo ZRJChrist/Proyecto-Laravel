@@ -15,7 +15,7 @@ class RegisterController
         if (SessionManager::read('user_id')) {
             return redirect()->route('home');
         } else {
-            return view('register');
+            return view('content.register');
         }
     }
     public function attentRegister(Request $request)
@@ -28,11 +28,15 @@ class RegisterController
         $validator->validatePasswordConfirmation($data['password'], $data['password_confirmation']);
 
         if (!$validator->hasErrors()) {
-            return redirect()->route('register')->with('error', $validator->getErrors());
+            $inputsOld = array_map(function ($campo) {
+                Validator::sanitizeInput($campo);
+                return $campo;
+            }, ['name' => $data['name'], 'email' => $data['email']]);
+            return redirect()->route('register')->with(['error' => $validator->getErrors(), 'old' => $inputsOld]);
         } else {
             $result = User::createUser($data);
 
-            if ($result['success']) {
+            if ($result['result']) {
                 return redirect()->route('login');
             } else {
                 return redirect()->route('register')->with('error', ['errorDB' => $result['message']]);
