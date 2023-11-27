@@ -29,8 +29,7 @@ class ErrorHandler
     public function spanError(string $field): string
     {
         if (self::hasError($field)) {
-            return '<p class="d-flex mt-0 invalid-feedback"> *' . self::getError($field) . '</p>
-            ';
+            return '<p class="d-flex mt-0 invalid-feedback"> *' . self::getError($field) . '</p>';
         }
         return '';
     }

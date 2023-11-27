@@ -275,6 +275,29 @@ class Validator
         // If it has not been verified yet, return error
         return false;
     }
+    public function validateArchive($archiveMimeType, $mimeType, $field)
+    {
+        if ($mimeType == 'image') {
+            $accept = [
+                'png' => 'image/png',
+                'jpe' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'jpg' => 'image/jpeg',
+            ];
+            if (!in_array($archiveMimeType, $accept)) {
+                $this->errorHandler->addError($field, 'Deber ser una imagen');
+                return false;
+            }
+        }
+        if ($mimeType == 'pdf') {
+            if ($archiveMimeType != "application/pdf") {
+                $this->errorHandler->addError($field, 'Deber ser un PDF');
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static function validateEmpty($value)
     {
         if (empty($value) || $value == '' || $value == null) {

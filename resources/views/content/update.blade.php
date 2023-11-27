@@ -10,7 +10,8 @@
         <div class="m-auto mb-4">
             <h1>Editar Tarea</h1>
         </div>
-        <form class="m-auto needs-validation" method="POST" action="{{ route('addPost') }}" enctype="multipart/form-data">
+        <form class="m-auto needs-validation" method="POST" action="{{ route('updateTask', ['id' => $task['task_id']]) }}"
+            enctype="multipart/form-data">
             @csrf
             <!-- Text input -->
             <div class="mb-4">
@@ -21,7 +22,6 @@
                 </div>
                 {{-- Error Description --}}
                 {!! session('error') ? session('error')->spanError('description') : null !!}
-
             </div>
             <div class="row mb-4">
                 <div class="col">
@@ -143,10 +143,14 @@
             <div class="row mb-4">
                 <div class="col">
                     <div class="input-group">
-                        <span class="input-group-text" id="basic-addon1"><i class="bi bi-person-bounding-box"></i></span>
-                        <input type="text" class="form-control" name="operario" placeholder="Operador a cargo"
-                            aria-label="operario" aria-describedby="basic-addon1"
-                            value="{{ $task['operario'] ?? null }}">
+                        <span class="input-group-text" id="basic-addon1"><i
+                                class="bi bi-person-bounding-box"></i></span><select class="form-select" name="operario"
+                            aria-label="operario" style="height: 2.2em;">
+                            @foreach ($operarios as $key => $value)
+                                <option {{ $task['operario'] == $value ? 'selected' : '' }} value="{{ $key }}">
+                                    {{ $value }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     {{-- Error Operador --}}
                     {!! session('error') ? session('error')->spanError('operario') : null !!}
@@ -164,6 +168,28 @@
                 </div>
             </div>
 
+            <div class="mb-4">
+                <div class="input-group">
+                    <input type="file" class="form-control" name="archivePdf" accept=".pdf" id="inputGroupFile02">
+                    <label class="input-group-text" for="inputGroupFile02">Fichero PDF</label>
+                </div>
+                {{-- Error Archive PDF --}}
+                {!! session('error') ? session('error')->spanError('archivePdf') : null !!}
+            </div>
+
+            <div class="mb-4">
+                <div class="input-group">
+                    <input type="file" class="form-control" name="archiveImg"
+                        accept="image/jpeg, image/png"id="inputGroupFile02">
+                    <label class="input-group-text" for="inputGroupFile02">Imagen Projecto</label>
+                </div>
+                {!! session('error') ? session('error')->spanError('archiveImg') : null !!}
+
+            </div>
+
+            {{-- Error Archive Image --}}
+            {{-- {!! session('error') ? session('error')->spanError('archiveImg') : null !!} --}}
+
             <!-- Message input -->
             <div class="form-floating mb-4">
                 <textarea class="form-control" name="inf_task" id="floatingTextarea2" style="height: 100px" readonly>{{ $task['inf_task'] ?? null }}</textarea>
@@ -171,23 +197,18 @@
             </div>
 
             <div class="form-floating mb-4">
-                <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
+                <textarea class="form-control" name="feedback_task" placeholder="Leave a comment here" id="floatingTextarea2"
+                    style="height: 100px"></textarea>
                 <label for="floatingTextarea2">Inf. Actual</label>
             </div>
-            <div class="input-group mb-3">
-                <input type="file" class="form-control" name="archivePdf" accept=".pdf" id="inputGroupFile02">
-                <label class="input-group-text" for="inputGroupFile02">Fichero PDF</label>
-            </div>
 
-            <div class="input-group mb-3">
-                <input type="file" class="form-control" name="imgProj" accept="image/*"id="inputGroupFile02">
-                <label class="input-group-text" for="inputGroupFile02">Imagen Projecto</label>
-            </div>
 
             <!-- Submit button -->
             <div class="d-grid gap-2 d-md-flex justify-content-md-center ">
-                <button class="btn btn-dark" type="button" data-mdb-ripple-init>Actualizar</button>
-                <button class="btn btn-warning" type="button" data-mdb-ripple-init>Cancelar</button>
+                <button class="btn btn-dark" name="btnFrom" value="1" type="submit"
+                    data-mdb-ripple-init>Actualizar</button>
+                <button class="btn btn-warning" name="btnFrom" value="0" type="submit"
+                    data-mdb-ripple-init>Cancelar</button>
             </div>
         </form>
     </div>

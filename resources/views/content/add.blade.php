@@ -149,9 +149,7 @@
                             @foreach ($operarios as $key => $value)
                                 <option value="{{ $key }}">{{ $value }}</option>
                             @endforeach
-
                         </select>
-
                     </div>
                     {{-- Error Operador --}}
                     {!! session('error') ? session('error')->spanError('operario') : null !!}
