@@ -39,7 +39,7 @@ class User
     public static function getDataUser($user_id)
     {
         $connection = ConectDB::getInstance()->getConnection();
-        $query = $connection->prepare('SELECT name,last_name, email, phoneNumber, nif_cif  FROM users WHERE id = :id');
+        $query = $connection->prepare('SELECT name,last_name, email, phoneNumber, nif_cif ,role FROM users WHERE id = :id');
         $query->execute([':id' => $user_id]);
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
         return $result[0];
@@ -68,7 +68,7 @@ class User
     }
     public static function getAllOperarios()
     {
-        $query = ConectDB::getInstance()->getConnection()->prepare('SELECT id, name FROM users WHERE admin = 0');
+        $query = ConectDB::getInstance()->getConnection()->prepare('SELECT id, name FROM users WHERE role = 0');
         $query->execute();
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
         foreach ($result as $row) {

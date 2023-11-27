@@ -3,7 +3,9 @@
 @section('title', 'Update')
 
 @section('breadcrumb')
-    <li class="breadcrumb-item" aria-current="page">Update / {{ $task['task_id'] }}</li>
+    <li class="breadcrumb-item" style="color: #E65100"><i class="fas fa-paragraph"></i> Update</li>
+    <li class="breadcrumb-item active" aria-current="page"> {{ $task['task_id'] }}</li>
+
 @endsection
 @section('crud')
     <div class="d-flex flex-column m-auto p-2 hover-shadow " id="form" style="width: 50%">
@@ -198,7 +200,7 @@
 
             <div class="form-floating mb-4">
                 <textarea class="form-control" name="feedback_task" placeholder="Leave a comment here" id="floatingTextarea2"
-                    style="height: 100px"></textarea>
+                    style="height: 100px">{{ $task['feedback_task'] ?? null }}</textarea>
                 <label for="floatingTextarea2">Inf. Actual</label>
             </div>
 

@@ -8,7 +8,6 @@ use App\Models\ConectDB;
 
 class Task
 {
-    private $AllProperties = [];
     private const FormProperties = [
         'user_id',
         'firstName',
@@ -34,9 +33,9 @@ class Task
             $connection->beginTransaction();
 
             /*
-        * Utilizando array_map a cada nombre de las columnas le agregamos el doble punto ( : ),
-        * para despues poder pasar los valores con su correspondiente columna.
-        */
+            * Utilizando array_map a cada nombre de la columna se agrega el doble punto ( : ),
+            * para despues poder pasar los valores con su correspondiente columna.
+            */
             $values = self::stringColums(array_map(function ($campo) {
                 return ':' . $campo;
             }, self::FormProperties));
@@ -92,7 +91,7 @@ class Task
         if (!$query->execute([':id' => $id])) {
             return ['result' => false, 'message' => $connection->errorInfo()];
         }
-        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        $result = $query->fetch(PDO::FETCH_ASSOC);
         if (empty($result)) {
             return ['result' => false, 'message' => 'No hay datos'];
         }
@@ -103,8 +102,21 @@ class Task
     {
     }
 
-    public function update($request, $id)
+    public static function update($id, $request)
     {
+        $columns = self::stringColums(array_map(function ($campo) {
+            return $campo . '= :' . $campo;
+        }, array_keys($request)));
+
+        $connection = ConectDB::getInstance()->getConnection();
+        $slq = 'UPDATE task SET ' . $columns . ' WHERE task_id= :id';
+        $query = $connection->prepare($slq);
+        $request['id'] = $id;
+        if ($query->execute($request)) {
+            return ['result' => true, 'message' => 'Tarea ' . $id . ' actualizada'];
+        } else {
+            return ['result' => false, 'message' =>  $connection->errorInfo()];
+        }
     }
 
     public static function numRegister()

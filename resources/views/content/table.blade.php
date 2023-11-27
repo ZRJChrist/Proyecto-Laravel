@@ -9,7 +9,7 @@
 @section('title', 'Tasks')
 @extends('content.tasks')
 @section('breadcrumb')
-    <li class="breadcrumb-item" aria-current="page">Tabla / {{ $page }}</li>
+    <li class="breadcrumb-item" aria-current="page"> {{ $page }}</li>
 @endsection
 
 @section('crud')
@@ -71,6 +71,7 @@
                     <td>
                         <div class="ms-0">
                             <p class="fw-normal mb-1">{{ $task['province_id'] }}, {{ $task['location'] }}</p>
+                            <p class="text-muted mb-0">Dir: {{ $task['direccion'] }}</p>
                             <p class="text-muted mb-0">CP: {{ $task['codigoPostal'] }}</p>
                         </div>
                     </td>
@@ -83,7 +84,8 @@
                                         role="button">Editar</a>
                                 </div>
                                 <div class="p-1">
-                                    <a class="btn btn-outline-dark" href="#" role="button">Ver</a>
+                                    <a class="btn btn-outline-dark"
+                                        href="{{ route('showTask', ['id' => $task['task_id']]) }}" role="button">Ver</a>
                                 </div>
                             </div>
                             <div class="p-1">

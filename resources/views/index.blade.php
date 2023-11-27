@@ -34,24 +34,6 @@
                 @yield('content')
             </section>
         </div>
-        <footer>
-            <!-- Sección de contacto -->
-            <section id="contacto" class="py-5">
-                <div class="container">
-                    <h2 class="text-center mb-4 ">Contáctanos</h2>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p>Para más información, contáctanos:</p>
-                            <ul>
-                                <li>Dirección: [Dirección de tu empresa]</li>
-                                <li>Teléfono: [Número de teléfono]</li>
-                                <li>Email: [Correo electrónico]</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </footer>
     </div>
 
 </body>

@@ -9,12 +9,6 @@
         <div class="p-4 shadow-md mt-5 m-auto hover-shadow " style="width: 24em;">
             <h2 class="text-2xl font-weight-bold mb-4">Iniciar sesión</h2>
 
-            @if (session('error'))
-                <div class="p-2 mb-4 mt-1 text-sm text-white bg-danger rounded-lg" role="alert">
-                    <span class="font-weight-bold">{{ session('error') }}</span>
-                </div>
-            @endif
-
             <!-- Formulario de inicio de sesión -->
             <form method="POST" action="{{ route('PostLogin') }}">
                 @csrf

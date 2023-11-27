@@ -22,18 +22,15 @@ class LoginController
     public static function attemptLogin(Request $request)
     {
         $request = $request->only('email', 'password');
-        try {
-            if (!User::checkIfExistsEmail($request['email'])) {
-                return redirect('login')->with('email', 'Email no registrado');
-            }
-            if (self::validateCredentials($request)) {
-                SessionManager::write('user_id', User::getUser($request['email']));
-                return redirect()->route('home');
-            } else {
-                return redirect('login')->with('password', 'Contraseña incorrecta');
-            }
-        } catch (PDOException) {
-            return redirect('login')->with('error', 'Error al conectar con el servidor');
+
+        if (!User::checkIfExistsEmail($request['email'])) {
+            return redirect('login')->with('email', 'Email no registrado');
+        }
+        if (self::validateCredentials($request)) {
+            SessionManager::write('user_id', User::getUser($request['email']));
+            return redirect()->route('home');
+        } else {
+            return redirect('login')->with('password', 'Contraseña incorrecta');
         }
     }
 
