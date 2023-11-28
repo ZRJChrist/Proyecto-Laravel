@@ -9,29 +9,35 @@ use App\Models\Task;
 use App\Models\SessionManager;
 use App\Models\Provinces;
 use App\Models\Validator;
+use Illuminate\Validation\Rules\Exists;
 
 class TaskController
 {
     private static $reg = 6;
+    private $existsUser;
     private const  status = [
         'B' => 'Esperando ser aprobada',
         'P' => 'Pendiente',
         'R' => 'Realizada',
         'C' => 'Cancelada'
     ];
+
+    public function __construct()
+    {
+        $this->existsUser = SessionManager::read('user_id') != null ?  true : false;
+    }
     public function get(?int $page = 1)
     {
-        $limit['reg'] = self::$reg;
-        $limit['init'] = ($page - 1) * self::$reg;
-        $totalpag = ceil(Task::numRegister() / self::$reg);
+        if ($this->existsUser) {
+            $limit['reg'] = self::$reg;
+            $limit['init'] = ($page - 1) * self::$reg;
+            $totalpag = ceil(Task::numRegister() / self::$reg);
 
-        // *Si la pagina es mayor a las totales, se mostrara siempre la ultima pagina con datos
-        if ($page >= $totalpag) {
-            $limit['init'] = ($totalpag - 1) * self::$reg;
-            $page = $totalpag;
-        }
-
-        if (SessionManager::read('user_id')) {
+            // *Si la pagina es mayor a las totales, se mostrara siempre la ultima pagina con datos
+            if ($page >= $totalpag) {
+                $limit['init'] = ($totalpag - 1) * self::$reg;
+                $page = $totalpag;
+            }
             SessionManager::write('user', User::getDataUser(SessionManager::read('user_id')));
 
             return view('content.table')->with(['tasks' => self::getTasksTable($limit), 'page' => $page, 'total' => $totalpag]);
@@ -41,7 +47,7 @@ class TaskController
     }
     public function edit($id)
     {
-        if (SessionManager::read('user_id')) {
+        if ($this->existsUser) {
             $task = Task::find($id);
             if ($task['result']) {
 
@@ -61,7 +67,6 @@ class TaskController
     }
     public function update($id, Request $request)
     {
-
         if ($request['btnFrom'] != 0) {
             $inputs = $request->except('_token');
             $formValidado = self::validateFromUpdate($inputs);
@@ -74,15 +79,12 @@ class TaskController
                 }, $inputs);
                 return redirect()->route('editask', ['id' => $id])->with(['error' => $formValidado->getErrorHandler(), 'old' => $inputsOld]);
             } else {
-                //TODO Logica para almacenar los datos
+
                 if (isset($_FILES['archivePdf']) && $_FILES['archivePdf']['error'] === UPLOAD_ERR_OK) {
-                    // $hashURL = hash('sha256', self::AddArchivePDF($id));
-                    // $inputs['archivePdf'] = $hashURL;
-                    $inputs['archivePdf'] = self::AddArchivePDF($id);
+                    $inputs['archivePdf'] = self::AddArchive($id, 'archivePdf', 'pdf');
                 }
                 if (isset($_FILES['archiveImg']) && $_FILES['archiveImg']['error'] === UPLOAD_ERR_OK) {
-                    self::AddArchiveImg($id);
-                    $inputs['archiveImg'] = $id;
+                    $inputs['archiveImg'] = self::AddArchive($id, 'archiveImg', 'img');;
                 }
                 //*Eliminar inputs innecesarios
                 unset($inputs['btnFrom']);
@@ -98,14 +100,57 @@ class TaskController
 
     public function show($id)
     {
+        if ($this->existsUser) {
+            SessionManager::write('user', User::getDataUser(SessionManager::read('user_id')));
+            $task = Task::find($id);
+            if ($task['result']) {
+                $task = $task['data'];
+                $task['operario'] = User::getAllOperarios()[$task['operario']];
+                $task['province_id'] = Provinces::getProvinces()[$task['province_id']];
+                $task['statusDescription'] = self::status[$task['status_task']];
+                return view('content.show')->with('task', $task);
+            }
+        } else {
+            return redirect()->route('home');
+        }
+    }
+    private function AddArchive($id, $nameArchive, $mimeType)
+    {
+        //* Busca la carpeta de la tarea. Si esta no existe se le creara una.
+
+        $address = storage_path('app\\private\\') . 'Task' . $id;
+        if (!file_exists($address)) {
+            mkdir($address, 0777, true);
+        }
+        //* Extraer la extension del archivo.
+
+        $ext = pathinfo($_FILES[$nameArchive]['name'], PATHINFO_EXTENSION);
+
+        if ($mimeType == 'pdf') {
+            $newName = 'PDF-Task' . $id . '.' . $ext;
+            $ruta_destino = $address . '\\' . $newName;
+            move_uploaded_file($_FILES[$nameArchive]['tmp_name'], $ruta_destino);
+            return $newName;
+        }
+        if ($mimeType == 'img') {
+            $newName = time() . '.' . $ext;
+            $ruta_destino = $address . '\\' . $newName;
+            move_uploaded_file($_FILES[$nameArchive]['tmp_name'], $ruta_destino);
+            return 'app\\private\\Task' . $id;
+        }
+        return false;
+    }
+    public function confirm($id)
+    {
         if (SessionManager::read('user_id')) {
             SessionManager::write('user', User::getDataUser(SessionManager::read('user_id')));
             $task = Task::find($id);
             if ($task['result']) {
-                $task['data']['operario'] = User::getAllOperarios()[$task['data']['operario']];
-                $task['data']['province_id'] = Provinces::getProvinces()[$task['data']['province_id']];
-                $task['data']['statusDescription'] = self::status[$task['data']['status_task']];
-                return view('content.show')->with('task', $task['data']);
+                $task = $task['data'];
+                $task['operario'] = User::getAllOperarios()[$task['operario']];
+                $task['province_id'] = Provinces::getProvinces()[$task['province_id']];
+                $task['statusDescription'] = self::status[$task['status_task']];
+                return view('content.confirm')->with('task', $task);
             }
         } else {
             return redirect()->route('home');
@@ -113,32 +158,9 @@ class TaskController
     }
     public function delete($id)
     {
-    }
-
-    private function AddArchivePDF($id)
-    {
-        //* Busca la carpeta de la tarea. Si esta no existe se le creara una.
-        $address = storage_path('app\\private\\') . 'Task' . $id;
-        if (!file_exists($address)) {
-            mkdir($address, 0777, true);
+        $delete = Task::delete($id);
+        if ($delete['result']) {
         }
-        //* Extraer la extension del archivo.
-        $ext = pathinfo($_FILES['archivePdf']['name'], PATHINFO_EXTENSION);
-        $newName = 'PDF-Task' . $id . '.' . $ext;
-        $ruta_destino = $address . '\\' . $newName;
-        move_uploaded_file($_FILES['archivePdf']['tmp_name'], $ruta_destino);
-        return $ruta_destino;
-    }
-    private function AddArchiveImg($id)
-    {
-        $address = storage_path('app\\private\\') . 'Task' . $id;
-        if (!file_exists($address)) {
-            mkdir($address, 0777, true);
-        }
-        $ext = pathinfo($_FILES['archiveImg']['name'], PATHINFO_EXTENSION);
-        $newName = time() . '.' . $ext;
-        $ruta_destino = $address . '\\' . $newName;
-        move_uploaded_file($_FILES['archiveImg']['tmp_name'], $ruta_destino);
     }
     private static function getTasksTable($limit)
     {

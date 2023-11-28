@@ -89,7 +89,10 @@
                                 </div>
                             </div>
                             <div class="p-1">
-                                <a class="btn btn-outline-danger" href="#" role="button">Eliminar</a>
+                                <a class="btn btn-outline-danger"
+                                    href="{{ route('confirmDeletTask', ['id' => $task['task_id']]) }}"
+                                    role="button">Eliminar
+                                </a>
                             </div>
                         </div>
                     </td>
@@ -108,7 +111,6 @@
                     <a class="page-link" href="{{ route('listTask', ['page' => $i]) }}">{{ $i }}</a>
                 </li>
             @endfor
-
 
             <li class="page-item {{ $page == $total ? 'disabled' : '' }}">
                 <a class="page-link" href="{{ route('listTask', ['page' => $page + 1]) }}">Next</a>

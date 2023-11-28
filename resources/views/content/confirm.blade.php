@@ -14,7 +14,13 @@
 @endsection
 
 @section('crud')
+    <div class="alert alert-danger" role="alert">
+        ¿Estas seguro que deseas eliminar esta tarea?
+        <div class="p-1">
+            <a class="btn btn-outline-danger" href='#' role="button">Eliminar</a>
+        </div>
 
+    </div>
     <div class="container mt-4 hover-shadow p-4">
         <h1><span class="font-weight-bold">- {{ $task['description'] }}</span></h1>
         <hr class="hr" />
@@ -93,12 +99,5 @@
                 </div>
             </div>
         </div>
-        <div class="mt-5">
-            <a class="btn btn-outline-warning" href="{{ route('updateTask', ['id' => $task['task_id']]) }}"
-                role="button">Editar</a>
-            <a class="btn btn-outline-danger" href="{{ route('deleteTask', ['id' => $task['task_id']]) }}"
-                role="button">Eliminar</a>
-        </div>
     </div>
-
 @endsection

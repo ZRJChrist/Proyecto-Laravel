@@ -98,10 +98,6 @@ class Task
         return ['result' => true, 'data' => $result];
     }
 
-    public function delete($id)
-    {
-    }
-
     public static function update($id, $request)
     {
         $columns = self::stringColums(array_map(function ($campo) {
@@ -118,7 +114,16 @@ class Task
             return ['result' => false, 'message' =>  $connection->errorInfo()];
         }
     }
-
+    public static function delete($id)
+    {
+        $connection = ConectDB::getInstance()->getConnection();
+        $query = $connection->prepare('DELETE FROM task WHERE task_id = :id');
+        if ($query->execute([':id' => $id])) {
+            return ['result' => true, 'message' => 'Tarea ' . $id . ' Eliminada'];
+        } else {
+            return ['result' => false, 'message' =>  $connection->errorInfo()];
+        }
+    }
     public static function numRegister()
     {
         $conn = ConectDB::getInstance()->getConnection();

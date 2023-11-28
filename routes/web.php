@@ -44,4 +44,5 @@ Route::post('/Tasks/Update/{id}', [TaskController::class, 'update'])->name('upda
 
 Route::get('/Tasks/Show/{id}', [TaskController::class, 'show'])->name('showTask');
 
-Route::get('/Tasks/Delete/{id}', [TaskController::class, 'delete'])->name('deleteTask');
+Route::get('/Tasks/Delete/{id}', [TaskController::class, 'confirm'])->name('confirmDeletTask');
+Route::post('/Tasks/Delete/{id}', [TaskController::class, 'confirm'])->name('deleteTask');
