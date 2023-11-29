@@ -33,6 +33,7 @@ Route::post('/Add', [TaskController::class, 'create'])->name('addPost');
 
 Route::get('/Tasks/{page?}', [TaskController::class, 'list'])->name('listTask');
 
+
 Route::get('/Tasks/Update/{id}', [TaskController::class, 'edit'])->name('editask');
 Route::post('/Tasks/Update/{id}', [TaskController::class, 'update'])->name('updateTask');
 

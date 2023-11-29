@@ -84,19 +84,28 @@ class TaskController
 
     public function list(?int $page = 1)
     {
+        request('status') ? $status = request('status') : $status = false;
         if ($this->existsUser) {
             $limit['reg'] = self::$reg;
             $limit['init'] = ($page - 1) * self::$reg;
-            $totalpag = ceil(Task::numRegister() / self::$reg);
 
+            if (!$status) {
+                $task = self::getTasksTable($limit);
+                $numReg = Task::numRegister();
+            } else {
+                $param = ['status_task' => $status];
+                $task = self::getTasksTable($limit, $param);
+                $numReg = Task::numRegister($param);
+            }
+
+            $totalpag = ceil($numReg / self::$reg);
             // *Si la pagina es mayor a las totales, se mostrara siempre la ultima pagina con datos
             if ($page >= $totalpag) {
                 $limit['init'] = ($totalpag - 1) * self::$reg;
                 $page = $totalpag;
             }
-            SessionManager::write('user', User::getDataUser(SessionManager::read('user_id')));
 
-            return view('content.table')->with(['tasks' => self::getTasksTable($limit), 'page' => $page, 'total' => $totalpag]);
+            return view('content.table')->with(['tasks' => $task, 'page' => $page, 'total' => $totalpag, 'status' => $status]);
         } else {
             return redirect()->route('login');
         }
@@ -226,7 +235,7 @@ class TaskController
         return false;
     }
 
-    private static function getTasksTable($limit)
+    private static function getTasksTable($limit, $param = false)
     {
         $dataToTable = [
             'task_id',
@@ -245,7 +254,11 @@ class TaskController
             'operario',
             'inf_task'
         ];
-        $query = Task::getAll($dataToTable, $limit);
+        if (!$param) {
+            $query = Task::getAll($dataToTable, $limit);
+        } else {
+            $query = Task::getAll($dataToTable, $limit, $param);
+        }
         if ($query['result']) {
             $provinces = Provinces::getProvinces();
             foreach ($query['data'] as &$task) {

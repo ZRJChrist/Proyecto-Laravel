@@ -51,11 +51,17 @@ class LoginController
     {
         //Excluimos el campo _token debido a que no utilizara en esta caso
         $request = $request->only('email', 'password');
-
+        $validator = new Validator();
+        $validator->validateEmail($request['email']);
+        if (!$validator->hasErrors()) {
+            return redirect()->route('login')->with(['error' => $validator->getErrorHandler()]);
+        }
         /*Verificamos si el email se encuentra en la base de datos, sino se encuentra
         nos devolvera un error*/
+
         if (!User::checkIfExistsEmail($request['email'])) {
-            return redirect()->route('login')->with('email', 'Email no registrado');
+            $validator->getErrorHandler()->addError('email', 'Email no registrado');
+            return redirect()->route('login')->with(['error' => $validator->getErrorHandler()]);
         }
         /*Verificamos si los datos coinciden con los de la base de datos, en caso si coincidan 
         nos llevara a la pagina de listar tareas*/
@@ -64,7 +70,8 @@ class LoginController
             return redirect()->route('listTask');
         } else {
             /**En caso de que las credenciales no coincidan nos devolvera informacion */
-            return redirect('login')->with('password', 'Contraseña incorrecta');
+            $validator->getErrorHandler()->addError('password', 'Contraseña incorrecta');
+            return redirect()->route('login')->with(['error' => $validator->getErrorHandler()]);
         }
     }
     /**
@@ -82,7 +89,7 @@ class LoginController
         $validator->validatePasswordConfirmation($data['password'], $data['password_confirmation'], 'password_confirmation');
 
         /**Si hay algun error, se hara un saneamiento/limpieza a los inputs enviados para devolverlos,
-         * tambien se enviara el controllador de error de su validacion para poder expresar en la vista los error que tiene el usuari
+         * tambien se enviara el controllador de error de su validacion para poder expresar en la vista los error que tiene el usuario
          */
         if (!$validator->hasErrors()) {
             $inputsOld = array_map(function ($campo) {

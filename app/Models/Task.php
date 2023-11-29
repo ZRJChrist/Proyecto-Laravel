@@ -59,25 +59,42 @@ class Task
         }
     }
 
-    public static function getAll($column = false, $limit = false)
+    public static function getAll($column = false, $limit = false, mixed $param = false)
     {
         $connection = ConectDB::getInstance()->getConnection();
-        $sql = '';
-        if (!$column) {
-            $sql = 'SELECT * FROM task';
-        } else {
-            $sql = 'SELECT ' . self::stringColums($column) . ' FROM task';
+
+        $columns = $column ? self::stringColums($column) : '*';
+        $sql = "SELECT $columns FROM task";
+
+        if ($param) {
+            $paramKey = key($param);
+            $sql .= " WHERE $paramKey = :paramValue";
         }
+
         if ($limit) {
-            $sql .= ' LIMIT ' . $limit['init'] . ' , ' . $limit['reg'];
+            $sql .= ' LIMIT :init , :reg';
         }
+
         $query = $connection->prepare($sql);
+
+        if ($param) {
+            $query->bindValue(':paramValue', $param[$paramKey]);
+        }
+
+        if ($limit) {
+            $query->bindValue(':init', $limit['init'], PDO::PARAM_INT);
+            $query->bindValue(':reg', $limit['reg'], PDO::PARAM_INT);
+        }
+
         if (!$query->execute()) {
             return ['result' => false, 'message' => $connection->errorInfo()];
         }
+
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
+
         return ['result' => true, 'data' => $result];
     }
+
 
     public static function find($id, $column = false)
     {
@@ -125,12 +142,25 @@ class Task
             return ['result' => false, 'message' =>  $connection->errorInfo()];
         }
     }
-    public static function numRegister()
+    public static function numRegister(mixed $param = false)
     {
         $conn = ConectDB::getInstance()->getConnection();
         $sql = "SELECT COUNT(*) as total FROM task";
-        return $conn->query($sql)->fetchColumn();
+
+        if ($param) {
+            $paramKey = key($param);
+            $sql .= " WHERE $paramKey = :paramValue";
+        }
+
+        $query = $conn->prepare($sql);
+
+        if ($param) {
+            $query->bindValue(':paramValue', $param[$paramKey]);
+        }
+
+        return $query->execute() ? $query->fetchColumn() : false;
     }
+
     private static function stringColums($dataRequest)
     {
         $campos = implode(', ', $dataRequest);

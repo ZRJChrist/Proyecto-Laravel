@@ -24,8 +24,16 @@ body {
 nav:hover {
     background-color: #222;
 
-    div {
-        color: white;
+    a {
+        color: white !important;
+    }
+
+    a:hover {
+        color: #ff4d16 !important;
+    }
+
+    .btn-log {
+        border-color: white !important;
     }
 }
 
@@ -37,4 +45,16 @@ nav:hover {
     margin-top: 5%;
     padding: 1em;
     width: 80%;
+}
+
+.dec-login {
+    height: 100%;
+    background-image: url('../img/Rangitikei.png');
+    background-size: cover;
+}
+
+.dec-register {
+    height: 100%;
+    background-image: url('../img/Waimakariri.png');
+    background-size: cover;
 }

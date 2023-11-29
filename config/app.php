@@ -182,6 +182,8 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
+        'Utils' => App\Helpers\Utils::class,
+        //'Sessions' => App\Models\SessionManager::class,
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
 
