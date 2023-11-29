@@ -12,6 +12,7 @@ body {
 #nav_content {
     display: flex;
     width: 100%;
+    background-color: whitesmoke;
 }
 
 #nav_content nav {
@@ -21,7 +22,11 @@ body {
 }
 
 nav:hover {
-    background-color: whitesmoke;
+    background-color: #222;
+
+    div {
+        color: white;
+    }
 }
 
 #content {

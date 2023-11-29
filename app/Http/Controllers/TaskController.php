@@ -27,7 +27,7 @@ class TaskController
     }
     public function add()
     {
-        if (SessionManager::read('user_id')) {
+        if ($this->existsUser) {
             $user_id = SessionManager::read('user_id');
             SessionManager::write('user', User::getDataUser($user_id));
             return view('content.add')->with(['listProvinces' => Provinces::getProvinces(), 'operarios' => User::getAllOperarios()]);

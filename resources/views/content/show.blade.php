@@ -15,12 +15,12 @@
 
 @section('crud')
 
-    <div class="container mt-4 hover-shadow p-4">
+    <div class="container bg-white mt-4 hover-shadow p-4 rounded-3">
         <h1><span class="font-weight-bold">- {{ $task['description'] }}</span></h1>
         <hr class="hr" />
 
-        <div class="row">
-            <div class="col-md-6">
+        <div class="row mb-3">
+            <div class="col-md-6 hover-shadow border-0 rounded-3">
                 <div class=" px-3 border-0 rounded-3 list-group-item-dark p-2 mb-2">Contacto</div>
 
                 <ul class="list-group list-group-light mb-4 mr-4">
@@ -36,7 +36,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 hover-shadow border-0 rounded-3">
                 <div class=" px-3 border-0 rounded-3 list-group-item-dark p-2 mb-2">Tarea</div>
                 <ul class="list-group list-group-light mb-4 mr-4">
                     <li class="list-group-item d-flex justify-content-between align-items-center">

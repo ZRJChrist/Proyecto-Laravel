@@ -8,7 +8,7 @@
 
 @endsection
 @section('crud')
-    <div class="d-flex flex-column m-auto p-2 hover-shadow " id="form" style="width: 50%">
+    <div class="d-flex flex-column m-auto p-2 bg-white hover-shadow rounded-3" id="form" style="width: 70%">
         <div class="m-auto mb-4">
             <h1>Editar Tarea</h1>
         </div>

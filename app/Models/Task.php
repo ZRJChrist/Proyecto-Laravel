@@ -36,6 +36,7 @@ class Task
             * Utilizando array_map a cada nombre de la columna se agrega el doble punto ( : ),
             * para despues poder pasar los valores con su correspondiente columna.
             */
+
             $values = self::stringColums(array_map(function ($campo) {
                 return ':' . $campo;
             }, self::FormProperties));

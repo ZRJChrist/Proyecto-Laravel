@@ -1,6 +1,6 @@
 @php
     $statusColors = [
-        'B' => ['class' => 'text-bg-secondary', 'icon' => '<i class="fas fa-question"></i>'],
+        'B' => ['class' => 'text-bg-secondary', 'icon' => '<i class="fa-solid fa-hourglass-start"></i>'],
         'P' => ['class' => 'text-bg-warning', 'icon' => '<i class="fas fa-circle-pause"></i>'],
         'R' => ['class' => 'text-bg-success', 'icon' => '<i class="fas fa-check"></i>'],
         'C' => ['class' => 'text-bg-danger', 'icon' => '<i class="fas fa-ban"></i>'],
@@ -31,7 +31,7 @@
             </li>
         </ul>
     </div>
-    <table class="table align-middle mb-1 table-hover rounded-2 hover-shadow" style="width: 95%">
+    <table class="table align-middle mb-1 table-hover rounded-3 hover-shadow" style="width: 95%">
         <thead class="bg-light">
             <tr>
                 <th>Contact</th>
@@ -79,17 +79,17 @@
                         <div class="d-flex flex-column w-25">
                             <div class="d-flex flex-row">
                                 <div class="p-1">
-                                    <a class="btn btn-outline-warning"
+                                    <a class="btn btn-outline-warning btn-rounded"
                                         href="{{ route('updateTask', ['id' => $task['task_id']]) }}"
                                         role="button">Editar</a>
                                 </div>
                                 <div class="p-1">
-                                    <a class="btn btn-outline-dark"
+                                    <a class="btn btn-outline-dark btn-rounded"
                                         href="{{ route('showTask', ['id' => $task['task_id']]) }}" role="button">Ver</a>
                                 </div>
                             </div>
                             <div class="p-1">
-                                <a class="btn btn-outline-danger"
+                                <a class="btn btn-outline-danger btn-rounded"
                                     href="{{ route('confirmDeletTask', ['id' => $task['task_id']]) }}"
                                     role="button">Eliminar
                                 </a>

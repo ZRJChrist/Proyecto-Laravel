@@ -27,7 +27,7 @@
         </form>
 
     </div>
-    <div class="container mt-4 hover-shadow p-4">
+    <div class="container mt-4 bg-white hover-shadow p-4 rounded-3">
         <h1><span class="font-weight-bold">- {{ $task['description'] }}</span></h1>
         <hr class="hr" />
 
