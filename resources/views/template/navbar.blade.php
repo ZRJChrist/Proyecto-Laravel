@@ -1,28 +1,12 @@
 <div class="p-4 mt-5" style="width: 280px;">
-    <a href="/" class="d-flex align-items-center pb-3 mb-3 link-dark text-decoration-none border-bottom">
+    <a href="{{ route('listTask') }}"
+        class="d-flex align-items-center pb-3 mb-3 link-dark text-decoration-none border-bottom">
         <svg class="bi me-2" width="30" height="24">
             <use xlink:href="#bootstrap"></use>
         </svg>
         <h1 class= "fw-semibold"><i class="bi bi-buildings-fill"></i> Bunglebuild</h1>
     </a>
     <ul class="list-unstyled ps-0">
-        <li class="mb-3">
-            <button class="btn btn-toggle align-items-center rounded collapsed fs-6" data-bs-toggle="collapse"
-                data-bs-target="#home-collapse" aria-expanded="false">
-                <i class="bi bi-caret-down-fill"></i>
-                Home
-            </button>
-            <div class="collapse" id="home-collapse" style="">
-                <ul class="btn-toggle-nav list-unstyled fw-normal pb-2">
-                    <li style="margin:0.7em;"><i class="bi bi-caret-right"></i><a href="{{ route('home') }}"
-                            class="link-dark rounded">Overview</a></li>
-                    <li style="margin:0.7em;"><i class="bi bi-caret-right"></i><a href="#"
-                            class="link-dark rounded">Updates</a></li>
-                    <li style="margin:0.7em;"><i class="bi bi-caret-right"></i><a href="#"
-                            class="link-dark rounded">Reports</a></li>
-                </ul>
-            </div>
-        </li>
         @if (isset($_SESSION['user_id']))
             <li class="mb-3">
                 <button class="btn btn-toggle align-items-center rounded collapsed fs-6" data-bs-toggle="collapse"

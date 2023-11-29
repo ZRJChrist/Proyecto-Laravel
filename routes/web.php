@@ -20,24 +20,21 @@ use App\Http\Controllers\TaskController;
 */
 
 //Login
-Route::get('/login', [LoginController::class, 'getLogin'])->name('login');
-Route::post('/login', [LoginController::class, 'attemptLogin'])->name('PostLogin');
+Route::get('/', [LoginController::class, 'getSignIn'])->name('login');
+Route::post('/', [LoginController::class, 'attemptSignIn'])->name('PostLogin');
 
-Route::get('/logout', [LoginController::class, 'logOutSession'])->name('logout');
+Route::get('/Logout', [LoginController::class, 'logOutSession'])->name('logout');
 
 //Registro
-Route::get('/registro', [RegisterController::class, 'getLogin'])->name('register');
-Route::post('/registro', [RegisterController::class, 'attentRegister'])->name('PostRegister');
+Route::get('/Signup', [LoginController::class, 'getSigUp'])->name('register');
+Route::post('/Signup', [LoginController::class, 'attentSignUp'])->name('PostRegister');
 
-//Home
-Route::get('/', [HomeController::class, 'getHome'])->name('home');
 
-//Agregar tareas
-Route::get('/Add', [AddController::class, 'get'])->name('addTask');
-Route::post('/Add', [AddController::class, 'post'])->name('addPost');
+//CRUD tareas
+Route::get('/Add', [TaskController::class, 'add'])->name('addTask');
+Route::post('/Add', [TaskController::class, 'create'])->name('addPost');
 
-//RUD tareas
-Route::get('/Tasks/{page?}', [TaskController::class, 'get'])->name('listTask');
+Route::get('/Tasks/{page?}', [TaskController::class, 'list'])->name('listTask');
 
 Route::get('/Tasks/Update/{id}', [TaskController::class, 'edit'])->name('editask');
 Route::post('/Tasks/Update/{id}', [TaskController::class, 'update'])->name('updateTask');
@@ -45,4 +42,4 @@ Route::post('/Tasks/Update/{id}', [TaskController::class, 'update'])->name('upda
 Route::get('/Tasks/Show/{id}', [TaskController::class, 'show'])->name('showTask');
 
 Route::get('/Tasks/Delete/{id}', [TaskController::class, 'confirm'])->name('confirmDeletTask');
-Route::post('/Tasks/Delete/{id}', [TaskController::class, 'confirm'])->name('deleteTask');
+Route::post('/Tasks/Delete/{id}', [TaskController::class, 'delete'])->name('deleteTask');

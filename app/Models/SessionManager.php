@@ -28,13 +28,14 @@ class SessionManager
             return ['result' => false, 'message' => 'Value of key ' . $key . ' is not a string'];
         self::startSession();
         if (isset($_SESSION[$key]) && null !== $_SESSION[$key]) {
-            self::_age();
-            if ($child == false) {
-                return $_SESSION[$key];
-            } else {
+            if (self::_age()) {
+                if ($child == false) {
+                    return $_SESSION[$key];
+                } else {
 
-                if (isset($_SESSION[$key][$child])) {
-                    return $_SESSION[$key][$child];
+                    if (isset($_SESSION[$key][$child])) {
+                        return $_SESSION[$key][$child];
+                    }
                 }
             }
         }
@@ -43,9 +44,12 @@ class SessionManager
     private static function _age()
     {
         $last = isset($_SESSION['LAST_ACTIVE']) ? $_SESSION['LAST_ACTIVE'] : false;
-        if (false !== $last && (time() - $last > self::$SESSION_AGE))
+        if (false !== $last && (time() - $last > self::$SESSION_AGE)) {
             self::_closeSession();
+            return false;
+        }
         $_SESSION['LAST_ACTIVE'] = time();
+        return true;
     }
     // Método para cerrar la sesión
     private static function _closeSession()

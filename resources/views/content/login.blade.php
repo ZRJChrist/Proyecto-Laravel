@@ -2,7 +2,6 @@
 
 @section('title', 'Sign In')
 
-
 @section('content')
     <div class="container-fluid d-flex align-items-center justify-content-center" style="height: auto">
 

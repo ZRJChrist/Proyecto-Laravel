@@ -8,18 +8,12 @@
         <div class=" p-4 rounded shadow-md hover-shadow" style="width: 24rem;">
             <h2 class="text-2xl font-weight-bold mb-4">Registrar nueva cuenta</h2>
 
-            @if (session('error'))
-                @php
-                    extract(session('error'));
-                @endphp
-            @endif
 
-            @if (isset($errorDB))
-                <div class="p-2 mb-4 mt-1 text-sm text-white bg-danger rounded-lg" role="alert">
-                    <span class="font-weight-bold">{{ $errorDB }}</span>
+            @if (session('errorDB'))
+                <div class="alert alert-danger" role="alert">
+                    <span class="font-weight-bold">{{ session('errorDB') }}</span>
                 </div>
             @endif
-
             <form method="POST" action="{{ route('PostRegister') }}">
                 @csrf
 
@@ -28,11 +22,7 @@
                     <input type="text" id="name" name="name" value="{{ session('old')['name'] ?? null }}"
                         class="form-control mt-1" />
 
-                    @if (isset($name))
-                        <div class="p-2 mb-4 mt-1 text-sm text-white bg-danger rounded-lg" role="alert">
-                            <span class="font-weight-bold">{{ $name }}</span>
-                        </div>
-                    @endif
+                    {!! session('error') ? session('error')->spanError('name') : null !!}
                 </div>
 
                 <div class="mb-4">
@@ -41,22 +31,16 @@
                     <input type="email" id="email" name="email" value="{{ session('old')['email'] ?? null }}"
                         class="form-control mt-1" />
 
-                    @if (isset($email))
-                        <div class="p-2 mb-4 mt-1 text-sm text-white bg-danger rounded-lg" role="alert">
-                            <span class="font-weight-bold">{{ $email }}</span>
-                        </div>
-                    @endif
+                    {!! session('error') ? session('error')->spanError('email') : null !!}
+
                 </div>
 
                 <div class="mb-4">
                     <label for="password" class="form-label text-sm font-weight-bold text-gray-600">Contraseña</label>
                     <input type="password" id="password" name="password" class="form-control mt-1" />
 
-                    @if (isset($password))
-                        <div class="p-2 mb-4 mt-1 text-sm text-white bg-danger rounded-lg" role="alert">
-                            <span class="font-weight-bold">{{ $password }}</span>
-                        </div>
-                    @endif
+                    {!! session('error') ? session('error')->spanError('password') : null !!}
+
                 </div>
 
                 <div class="mb-4">
@@ -65,11 +49,8 @@
                     <input type="password" id="password_confirmation" name="password_confirmation"
                         class="form-control mt-1" />
 
-                    @if (isset($passwordConfirmation))
-                        <div class="p-2 mb-4 mt-1 text-sm text-white bg-danger rounded-lg" role="alert">
-                            <span class="font-weight-bold">{{ $passwordConfirmation }}</span>
-                        </div>
-                    @endif
+                    {!! session('error') ? session('error')->spanError('password_confirmation') : null !!}
+
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block">

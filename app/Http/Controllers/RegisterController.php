@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class RegisterController
 {
-    public function getLogin()
+    public function getSigUp()
     {
 
         if (SessionManager::read('user_id')) {
@@ -18,7 +18,7 @@ class RegisterController
             return view('content.register');
         }
     }
-    public function attentRegister(Request $request)
+    public function attentSignUp(Request $request)
     {
         $data = $request->only('name', 'email', 'password', 'password_confirmation');
         $validator = new Validator();

@@ -94,9 +94,9 @@
             </div>
         </div>
         <div class="mt-5">
-            <a class="btn btn-outline-warning" href="{{ route('updateTask', ['id' => $task['task_id']]) }}"
+            <a class="btn btn-warning" href="{{ route('updateTask', ['id' => $task['task_id']]) }}"
                 role="button">Editar</a>
-            <a class="btn btn-outline-danger" href="{{ route('deleteTask', ['id' => $task['task_id']]) }}"
+            <a class="btn btn-danger" href="{{ route('deleteTask', ['id' => $task['task_id']]) }}"
                 role="button">Eliminar</a>
         </div>
     </div>

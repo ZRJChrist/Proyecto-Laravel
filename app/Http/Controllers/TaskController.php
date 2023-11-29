@@ -9,7 +9,6 @@ use App\Models\Task;
 use App\Models\SessionManager;
 use App\Models\Provinces;
 use App\Models\Validator;
-use Illuminate\Validation\Rules\Exists;
 
 class TaskController
 {
@@ -24,9 +23,66 @@ class TaskController
 
     public function __construct()
     {
-        $this->existsUser = SessionManager::read('user_id') != null ?  true : false;
+        $this->existsUser = SessionManager::read('user_id') !== false ?  true : false;
     }
-    public function get(?int $page = 1)
+    public function add()
+    {
+        if (SessionManager::read('user_id')) {
+            $user_id = SessionManager::read('user_id');
+            SessionManager::write('user', User::getDataUser($user_id));
+            return view('content.add')->with(['listProvinces' => Provinces::getProvinces(), 'operarios' => User::getAllOperarios()]);
+        } else {
+            return redirect()->route('login');
+        }
+    }
+    public function create(Request $request)
+    {
+        if ($request['btnFrom'] != 0) {
+            $inputs = $request->except('_token');
+            $formValidado = self::validateFormAdd($inputs);
+
+            if (!$formValidado->hasErrors()) {
+                $inputsOld = array_map(function ($campo) {
+                    Validator::sanitizeInput($campo);
+                    return $campo;
+                }, $inputs);
+
+                return redirect()->route('addTask')->with(['error' => $formValidado->getErrorHandler(), 'old' => $inputsOld]);
+            } else {
+                $inputs['user_id'] = SessionManager::read('user_id');
+                if (Task::create($inputs)) {
+                    return redirect()->route('listTask');
+                } else {
+                    return redirect()->route('addTask');
+                }
+            }
+        } else {
+            return redirect()->route('listTask');
+        }
+    }
+    private static function validateFormAdd($request)
+    {
+        $validator = new Validator();
+
+        $validator->validateName($request['firstName'], 'firstName');
+        $validator->validateName($request['lastName'], 'lastName');
+        $validator->validateNifcif($request['nif_cif'], 'nif_cif');
+        $validator->validatePhoneNumber($request['phoneNumber'], 'phoneNumber');
+        $validator->validateEmail($request['email'], 'email');
+        $listProvinces = Provinces::getProvinces();
+        $validator->validateProvinces($request['province_id'], $listProvinces, 'province_id');
+        $validator->validatePostalCode($request['codigoPostal'], $request['province_id'], $listProvinces, 'codigoPostal');
+        $validator->validateOperario($request['operario'], User::getAllOperarios());
+        $validator->validateStatus($request['status_task'], 'status_task');
+        $validator->validateDate($request['date_task'], 'date_task');
+        $validator->validateText($request['direccion'], 'direccion');
+        $validator->validateText($request['location'], 'location');
+        $validator->validateText($request['description'], 'description');
+        return $validator;
+    }
+
+
+    public function list(?int $page = 1)
     {
         if ($this->existsUser) {
             $limit['reg'] = self::$reg;
@@ -42,7 +98,7 @@ class TaskController
 
             return view('content.table')->with(['tasks' => self::getTasksTable($limit), 'page' => $page, 'total' => $totalpag]);
         } else {
-            return redirect()->route('home');
+            return redirect()->route('login');
         }
     }
     public function edit($id)
@@ -62,7 +118,7 @@ class TaskController
             }
         } else {
             // ? Redirigir si no se encuentra un usuario. (feedback)? 
-            return redirect()->route('home');
+            return redirect()->route('login');
         }
     }
     public function update($id, Request $request)
@@ -111,7 +167,36 @@ class TaskController
                 return view('content.show')->with('task', $task);
             }
         } else {
-            return redirect()->route('home');
+            return redirect()->route('login');
+        }
+    }
+    public function confirm($id)
+    {
+        if ($this->existsUser) {
+            //SessionManager::write('user', User::getDataUser(SessionManager::read('user_id')));
+            $task = Task::find($id);
+            if ($task['result']) {
+                $task = $task['data'];
+                $task['operario'] = User::getAllOperarios()[$task['operario']];
+                $task['province_id'] = Provinces::getProvinces()[$task['province_id']];
+                $task['statusDescription'] = self::status[$task['status_task']];
+                return view('content.confirm')->with('task', $task);
+            }
+        } else {
+            return redirect()->route('login');
+        }
+    }
+    public function delete($id, Request $request)
+    {
+        if ($request['btnFrom'] != 0) {
+            $delete = Task::delete($id);
+            if ($delete['result']) {
+                return redirect()->route('listTask');
+            } else {
+                return redirect()->route('showTask', ['id' => $id]);
+            }
+        } else {
+            return redirect()->route('showTask', ['id' => $id]);
         }
     }
     private function AddArchive($id, $nameArchive, $mimeType)
@@ -140,28 +225,7 @@ class TaskController
         }
         return false;
     }
-    public function confirm($id)
-    {
-        if (SessionManager::read('user_id')) {
-            SessionManager::write('user', User::getDataUser(SessionManager::read('user_id')));
-            $task = Task::find($id);
-            if ($task['result']) {
-                $task = $task['data'];
-                $task['operario'] = User::getAllOperarios()[$task['operario']];
-                $task['province_id'] = Provinces::getProvinces()[$task['province_id']];
-                $task['statusDescription'] = self::status[$task['status_task']];
-                return view('content.confirm')->with('task', $task);
-            }
-        } else {
-            return redirect()->route('home');
-        }
-    }
-    public function delete($id)
-    {
-        $delete = Task::delete($id);
-        if ($delete['result']) {
-        }
-    }
+
     private static function getTasksTable($limit)
     {
         $dataToTable = [

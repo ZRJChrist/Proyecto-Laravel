@@ -9,24 +9,30 @@
 @section('title', 'Tarea')
 @extends('content.tasks')
 @section('breadcrumb')
-    <li class="breadcrumb-item text-info "><i class="fas fa-eye"></i> Ver Tarea</li>
+    <li class="breadcrumb-item text-danger "><i class="far fa-trash-can"></i></i>Eliminar</li>
     <li class="breadcrumb-item active" aria-current="page">{{ $task['task_id'] }}</li>
 @endsection
 
 @section('crud')
+
     <div class="alert alert-danger" role="alert">
         ¿Estas seguro que deseas eliminar esta tarea?
-        <div class="p-1">
-            <a class="btn btn-outline-danger" href='#' role="button">Eliminar</a>
-        </div>
+        <form method="POST" action="{{ route('deleteTask', ['id' => $task['task_id']]) }}">
+            @csrf
+
+            <div class="mt-1">
+                <button type="submit" name="btnFrom" value="1" class="btn btn-danger">Eliminar</button>
+                <button type="submit" name="btnFrom" value="0" class="btn btn-dark">Cancelar</button>
+            </div>
+        </form>
 
     </div>
     <div class="container mt-4 hover-shadow p-4">
         <h1><span class="font-weight-bold">- {{ $task['description'] }}</span></h1>
         <hr class="hr" />
 
-        <div class="row">
-            <div class="col-md-6">
+        <div class="row mb-3">
+            <div class="col-md-6 hover-shadow border-0 rounded-3">
                 <div class=" px-3 border-0 rounded-3 list-group-item-dark p-2 mb-2">Contacto</div>
 
                 <ul class="list-group list-group-light mb-4 mr-4">
@@ -42,7 +48,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 hover-shadow border-0 rounded-3">
                 <div class=" px-3 border-0 rounded-3 list-group-item-dark p-2 mb-2">Tarea</div>
                 <ul class="list-group list-group-light mb-4 mr-4">
                     <li class="list-group-item d-flex justify-content-between align-items-center">
