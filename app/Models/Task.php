@@ -5,11 +5,11 @@ namespace App\Models;
 use PDO;
 use PDOException;
 use App\Models\ConectDB;
+use App\Models\BaseModel;
 
-class Task
+class Task extends BaseModel
 {
     private const FormProperties = [
-        'user_id',
         'firstName',
         'lastName',
         'nif_cif',
@@ -23,10 +23,22 @@ class Task
         'status_task',
         'date_task',
         'operario',
-        'inf_task'
+        'inf_task',
+        'archivePdf',
+        'archiveImg'
     ];
-    public static function create($request, bool $form = false)
+    protected static function getTableName()
     {
+        return 'task';
+    }
+
+    protected static function getIdColumn()
+    {
+        return 'task_id';
+    }
+    public static function create($request)
+    {
+
         try {
 
             $connection = ConectDB::getInstance()->getConnection();
@@ -36,7 +48,6 @@ class Task
             * Utilizando array_map a cada nombre de la columna se agrega el doble punto ( : ),
             * para despues poder pasar los valores con su correspondiente columna.
             */
-
             $values = self::stringColums(array_map(function ($campo) {
                 return ':' . $campo;
             }, self::FormProperties));
@@ -59,79 +70,15 @@ class Task
         }
     }
 
-    public static function getAll($column = false, $limit = false, mixed $param = false)
+    public static function lastID()
     {
         $connection = ConectDB::getInstance()->getConnection();
-
-        $columns = $column ? self::stringColums($column) : '*';
-        $sql = "SELECT $columns FROM task";
-
-        if ($param) {
-            $paramKey = key($param);
-            $sql .= " WHERE $paramKey = :paramValue";
-        }
-
-        if ($limit) {
-            $sql .= ' LIMIT :init , :reg';
-        }
-
-        $query = $connection->prepare($sql);
-
-        if ($param) {
-            $query->bindValue(':paramValue', $param[$paramKey]);
-        }
-
-        if ($limit) {
-            $query->bindValue(':init', $limit['init'], PDO::PARAM_INT);
-            $query->bindValue(':reg', $limit['reg'], PDO::PARAM_INT);
-        }
-
-        if (!$query->execute()) {
-            return ['result' => false, 'message' => $connection->errorInfo()];
-        }
-
-        $result = $query->fetchAll(PDO::FETCH_ASSOC);
-
-        return ['result' => true, 'data' => $result];
-    }
-
-
-    public static function find($id, $column = false)
-    {
-        $connection = ConectDB::getInstance()->getConnection();
-        $sql = '';
-        if (!$column) {
-            $sql = 'SELECT * FROM task WHERE task_id = :id';
-        } else {
-            $sql = 'SELECT ' . self::stringColums($column) . ' FROM task WHERE task_id = :id';
-        }
-        $query = $connection->prepare($sql);
-        if (!$query->execute([':id' => $id])) {
-            return ['result' => false, 'message' => $connection->errorInfo()];
-        }
+        $query = $connection->prepare('SELECT max(task_id) as task_id FROM task');
+        $query->execute();
         $result = $query->fetch(PDO::FETCH_ASSOC);
-        if (empty($result)) {
-            return ['result' => false, 'message' => 'No hay datos'];
-        }
-        return ['result' => true, 'data' => $result];
+        return $result['task_id'];
     }
 
-    public static function update($id, $request)
-    {
-        $columns = self::stringColums(array_map(function ($campo) {
-            return $campo . '= :' . $campo;
-        }, array_keys($request)));
-
-        $connection = ConectDB::getInstance()->getConnection();
-        $slq = 'UPDATE task SET ' . $columns . ' WHERE task_id= :id';
-        $query = $connection->prepare($slq);
-        $request['id'] = $id;
-        if ($query->execute($request)) {
-            return ['result' => true, 'message' => 'Tarea ' . $id . ' actualizada'];
-        } else {
-            return ['result' => false, 'message' =>  $connection->errorInfo()];
-        }
-    }
     public static function delete($id)
     {
         $connection = ConectDB::getInstance()->getConnection();
@@ -142,25 +89,6 @@ class Task
             return ['result' => false, 'message' =>  $connection->errorInfo()];
         }
     }
-    public static function numRegister(mixed $param = false)
-    {
-        $conn = ConectDB::getInstance()->getConnection();
-        $sql = "SELECT COUNT(*) as total FROM task";
-
-        if ($param) {
-            $paramKey = key($param);
-            $sql .= " WHERE $paramKey = :paramValue";
-        }
-
-        $query = $conn->prepare($sql);
-
-        if ($param) {
-            $query->bindValue(':paramValue', $param[$paramKey]);
-        }
-
-        return $query->execute() ? $query->fetchColumn() : false;
-    }
-
     private static function stringColums($dataRequest)
     {
         $campos = implode(', ', $dataRequest);

@@ -9,6 +9,11 @@
 @section('title', 'Tasks')
 @extends('content.tasks')
 @section('breadcrumb')
+    @if (null != $params)
+        <li class="breadcrumb-item"> {{ ucwords(key($params)) }} <i class="fa-solid fa-caret-right px-2"></i>
+            {{ $params[key($params)] }}
+        </li>
+    @endif
     <li class="breadcrumb-item" aria-current="page"> {{ $page }}</li>
 @endsection
 
@@ -16,18 +21,18 @@
     <div aria-label="...">
         <ul class="pagination">
             <li class="page-item {{ $page - 1 == 0 ? 'disabled' : '' }}">
-                <a class="page-link" href="{{ route('listTask', ['page' => $page - 1]) }}">Previous</a>
+                <a class="page-link" href="{{ route('readTasks', Utils::paramLinks($page - 1, $params)) }}">Previous</a>
             </li>
 
             @for ($i = $page - 1 == 0 ? 1 : $page - 1; $i <= ($page >= $total ? $page : $page + 1); $i++)
                 <li class="page-item {{ $i == $page ? 'active' : '' }}">
-                    <a class="page-link" href="{{ route('listTask', ['page' => $i]) }}">{{ $i }}</a>
+                    <a class="page-link"
+                        href="{{ route('readTasks', Utils::paramLinks($i, $params)) }}">{{ $i }}</a>
                 </li>
             @endfor
 
-
             <li class="page-item {{ $page == $total ? 'disabled' : '' }}">
-                <a class="page-link" href="{{ route('listTask', ['page' => $page + 1]) }}">Next</a>
+                <a class="page-link" href="{{ route('readTasks', Utils::paramLinks($page + 1, $params)) }}">Next</a>
             </li>
         </ul>
     </div>
@@ -78,22 +83,27 @@
                     <td>
                         <div class="d-flex flex-column w-25">
                             <div class="d-flex flex-row">
-                                <div class="p-1">
-                                    <a class="btn btn-outline-warning btn-rounded"
-                                        href="{{ route('updateTask', ['id' => $task['task_id']]) }}"
-                                        role="button">Editar</a>
-                                </div>
+                                @if (Utils::isUserAuthorized($task['operario']))
+                                    <div class="p-1">
+                                        <a class="btn btn-outline-warning btn-rounded"
+                                            href="{{ route('updateTask', ['id' => $task['task_id']]) }}"
+                                            role="button">Editar</a>
+                                    </div>
+                                @endif
+
                                 <div class="p-1">
                                     <a class="btn btn-outline-dark btn-rounded"
                                         href="{{ route('showTask', ['id' => $task['task_id']]) }}" role="button">Ver</a>
                                 </div>
                             </div>
-                            <div class="p-1">
-                                <a class="btn btn-outline-danger btn-rounded"
-                                    href="{{ route('confirmDeletTask', ['id' => $task['task_id']]) }}"
-                                    role="button">Eliminar
-                                </a>
-                            </div>
+                            @if (Utils::isAdmin())
+                                <div class="p-1">
+                                    <a class="btn btn-outline-danger btn-rounded"
+                                        href="{{ route('confirmDeletTask', ['id' => $task['task_id']]) }}"
+                                        role="button">Eliminar
+                                    </a>
+                                </div>
+                            @endif
                         </div>
                     </td>
                 </tr>
@@ -103,17 +113,18 @@
     <div aria-label="...">
         <ul class="pagination">
             <li class="page-item {{ $page - 1 == 0 ? 'disabled' : '' }}">
-                <a class="page-link" href="{{ route('listTask', ['page' => $page - 1]) }}">Previous</a>
+                <a class="page-link" href="{{ route('readTasks', Utils::paramLinks($page - 1, $params)) }}">Previous</a>
             </li>
 
             @for ($i = $page - 1 == 0 ? 1 : $page - 1; $i <= ($page >= $total ? $page : $page + 1); $i++)
                 <li class="page-item {{ $i == $page ? 'active' : '' }}">
-                    <a class="page-link" href="{{ route('listTask', ['page' => $i]) }}">{{ $i }}</a>
+                    <a class="page-link"
+                        href="{{ route('readTasks', Utils::paramLinks($i, $params)) }}">{{ $i }}</a>
                 </li>
             @endfor
 
             <li class="page-item {{ $page == $total ? 'disabled' : '' }}">
-                <a class="page-link" href="{{ route('listTask', ['page' => $page + 1]) }}">Next</a>
+                <a class="page-link" href="{{ route('readTasks', Utils::paramLinks($page + 1, $params)) }}">Next</a>
             </li>
         </ul>
     </div>

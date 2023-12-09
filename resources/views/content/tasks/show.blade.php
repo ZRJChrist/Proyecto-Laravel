@@ -49,7 +49,7 @@
                                 <p class="text-muted mb-1">CP: {{ $task['codigoPostal'] }}</p>
                                 <p class="text-muted mb-1">Finalizacion: {{ $task['date_task'] }}</p>
                                 <p class="text-muted mb-1">Creacion: {{ $task['date_creation'] }}</p>
-                                <p class="text-muted mb-1">Operario: {{ $task['operario'] }}</p>
+                                <p class="text-muted mb-1">Operario: {{ $task['nombreOperario'] }}</p>
                                 <p class="text-muted mb-1">Estado: @if (array_key_exists($task['status_task'], $statusColors))
                                         <span
                                             class="badge {{ $statusColors[$task['status_task']]['class'] }} rounded-pill d-inline p-1">
@@ -93,12 +93,21 @@
                 </div>
             </div>
         </div>
+        @if (Utils::isUserAuthorized($task['operario']))
+            <a class="mt-5"
+                href="{{ route('storage', ['id' => $task['task_id'], 'name' => $task['archivePdf']]) }}">Descargar PDF</a>
+        @endif
         <div class="mt-5">
-            <a class="btn btn-warning" href="{{ route('updateTask', ['id' => $task['task_id']]) }}"
-                role="button">Editar</a>
-            <a class="btn btn-danger" href="{{ route('deleteTask', ['id' => $task['task_id']]) }}"
-                role="button">Eliminar</a>
+            @if (Utils::isUserAuthorized($task['operario']))
+                <a class="btn btn-warning" href="{{ route('updateTask', ['id' => $task['task_id']]) }}"
+                    role="button">Editar</a>
+            @endif
+            @if (Utils::isAdmin())
+                <a class="btn btn-danger" href="{{ route('deleteTask', ['id' => $task['task_id']]) }}"
+                    role="button">Eliminar</a>
+            @endif
         </div>
+
     </div>
 
 @endsection

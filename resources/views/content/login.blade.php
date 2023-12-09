@@ -5,7 +5,7 @@
 @section('content')
 
     <div class="container-fluid d-flex align-items-center p-0 w-75 bg-white rounded-3 justify-content-center hover-shadow"
-        style="height: 50%">
+        style="height:60%">
         <div class="col text-center w-100 dec-login">
             <div class="p-4 m-auto mt-5">
                 <span class="display-4 fw-bold text-white" style="background-color: #ffc300">Hola!!</span>
@@ -40,11 +40,11 @@
                         <label for="password" class="block text-sm font-weight-bold text-gray-600">Contraseña</label>
                         <input type="password" id="password" name="password"
                             class="form-control border-0 border-warning border-bottom mt-1" />
-                        @if (session('error'))
+                        @if (session('errorPass'))
                             <div class="alert alert-danger p-1 mt-1" role="alert">
                                 <span class="font-weight-bold">
                                     <i class="fas fa-circle-exclamation"></i>
-                                    {{ session('error')->getError('password') }}</span>
+                                    {{ session('errorPass')->getError('password') }}</span>
                             </div>
                         @endif
                     </div>
@@ -53,6 +53,14 @@
                     <button type="submit" class="btn btn btn-secondary ">
                         <i class="fa-solid fa-right-to-bracket px-1"></i> Iniciar sesión
                     </button>
+
+                    <div class="form-check form-switch mt-5">
+                        <input class="form-check-input" type="checkbox" name="remember" role="switch"
+                            id="flexSwitchCheckDefault">
+                        <label class="form-check-label" for="flexSwitchCheckDefault">Remember Me!</label>
+                    </div>
+
+
                 </form>
             </div>
         </div>

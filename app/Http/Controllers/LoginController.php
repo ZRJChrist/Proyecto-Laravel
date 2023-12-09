@@ -17,7 +17,7 @@ class LoginController
         /* Verificar si el hay una sesión iniciada, sino devuelve la varibale ´existUser´ sera false,
         en el caso contrario sera true.
         */
-        $this->existsUser = SessionManager::read('user_id') !== false ?  true : false;
+        $this->existsUser = SessionManager::read('user') !== false ?  true : false;
     }
     /*
     Funcion que se ejecuta al solicitar la url de login
@@ -26,21 +26,14 @@ class LoginController
     {
         /* Redirige a la lista de tareas si es que existe una sesión*/
         if ($this->existsUser) {
-            return redirect()->route('listTask');
+            return redirect()->route('readTasks');
         } else {
+            if (isset($_COOKIE['remember'])) {
+                $rememberToken = $_COOKIE['remember'];
+                $email = User::searchToken($rememberToken)['email'];
+                SessionManager::write('user', User::getIdAndRole($email));
+            }
             return view('content.login');
-        }
-    }
-    /*
-    Funcion que se ejecuta al solicitar la url de registro
-    */
-    public function getSigUp()
-    {
-        /* Redirige a la lista de tareas si es que existe una sesión*/
-        if ($this->existsUser) {
-            return redirect()->route('listTask');
-        } else {
-            return view('content.register');
         }
     }
     /**
@@ -50,7 +43,7 @@ class LoginController
     public  function attemptSignIn(Request $request)
     {
         //Excluimos el campo _token debido a que no utilizara en esta caso
-        $request = $request->only('email', 'password');
+        $request = $request->only('email', 'password', 'remember');
         $validator = new Validator();
         $validator->validateEmail($request['email']);
         if (!$validator->hasErrors()) {
@@ -66,54 +59,25 @@ class LoginController
         /*Verificamos si los datos coinciden con los de la base de datos, en caso si coincidan 
         nos llevara a la pagina de listar tareas*/
         if (self::validateCredentials($request)) {
-            SessionManager::write('user_id', User::getUser($request['email']));
-            return redirect()->route('listTask');
+            // * Creacion de sesion del usuario
+            SessionManager::write('user', User::getIdAndRole($request['email']));
+            // * Verificar si se marco la opcion de recordar usuario.
+            if (isset($request['remember'])) {
+                $id = SessionManager::read('user', 'id');
+                $remember = bin2hex(random_bytes(32));
+                $token = hash('sha256', $remember);
+                setcookie("remember", $token, time() + 86400, "/");
+                User::update($id, ['remember_token' => $token]);
+            }
+            return redirect()->route('readTasks');
         } else {
             /**En caso de que las credenciales no coincidan nos devolvera informacion */
             $validator->getErrorHandler()->addError('password', 'Contraseña incorrecta');
-            return redirect()->route('login')->with(['error' => $validator->getErrorHandler()]);
+            return redirect()->route('login')->with(['errorPass' => $validator->getErrorHandler()]);
         }
     }
-    /**
-     * Funcion que recibira los campos post enviados del formulario SignUp.
-     * @param Request $request. Valores de los inputs
-     */
-    public function attentSignUp(Request $request)
-    {
-        $validator = new Validator();
-        /**Verificamos que los campos tengan el formato deseado y no se encuentren vacios*/
-        $data = $request->only('name', 'email', 'password', 'password_confirmation');
-        $validator->validateName($data['name']);
-        $validator->validateEmail($data['email']);
-        $validator->validatePassword($data['password']);
-        $validator->validatePasswordConfirmation($data['password'], $data['password_confirmation'], 'password_confirmation');
 
-        /**Si hay algun error, se hara un saneamiento/limpieza a los inputs enviados para devolverlos,
-         * tambien se enviara el controllador de error de su validacion para poder expresar en la vista los error que tiene el usuario
-         */
-        if (!$validator->hasErrors()) {
-            $inputsOld = array_map(function ($campo) {
-                Validator::sanitizeInput($campo);
-                return $campo;
-            }, ['name' => $data['name'], 'email' => $data['email']]);
-            return redirect()->route('register')->with(['error' => $validator->getErrorHandler(), 'old' => $inputsOld]);
-        } else {
-            /**Si no hay errores en los datos enviara una consulta para la creacion del usuario,
-             * esta funcion se encargara de verificar los datos en la base de datos y crear el usuario
-             */
-            $result = User::createUser($data);
-
-            /**Si la consulta se ha ejecutado con exito no llevara a la ruta de login, en el caso
-             * de algun error se devolvera informacion al usuario
-             */
-            if ($result['result']) {
-                return redirect()->route('login');
-            } else {
-                return redirect()->route('register')->with('errorDB', $result['message']);
-            }
-        }
-    }
-    /** Funcion que nos retornara false si la contraseña enviada coincide con la de la base de datos*/
+    /** Funcion que retorna false si la contraseña enviada no coincide con la de la base de datos*/
     private static function validateCredentials($credentials)
     {
         return Hash::check($credentials['password'], User::credentials($credentials));
@@ -122,8 +86,7 @@ class LoginController
     /**Funcion para eliminar la sesión del usuario */
     public static function logOutSession()
     {
-        SessionManager::startSession();
-        unset($_SESSION['user_id']);
+        SessionManager::_closeSession();
         return redirect()->route('login');
     }
 }

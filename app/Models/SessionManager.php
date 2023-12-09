@@ -52,8 +52,9 @@ class SessionManager
         return true;
     }
     // Método para cerrar la sesión
-    private static function _closeSession()
+    public static function _closeSession()
     {
+        setcookie("remember", "", time() - 86400, "/");
         self::startSession();
         session_unset();
         session_destroy();

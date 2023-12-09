@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Utils;
 use Illuminate\Http\Request;
 use DateTime;
 use App\Models\User;
@@ -12,129 +13,43 @@ use App\Models\Validator;
 
 class TaskController
 {
-    private static $reg = 6;
+    //var $reg, representa el numeros de tareas que se mostraran por pantalla
+    private static $reg = 3;
+    //var $existsUser, representa si hay una sesion de usuario, el valor sera confirmado en el constructor 
     private $existsUser;
+    //const status, representa que significa el valor guardado 'status_task' en la base de datos
     private const  status = [
         'B' => 'Esperando ser aprobada',
         'P' => 'Pendiente',
         'R' => 'Realizada',
         'C' => 'Cancelada'
     ];
-
+    /**Contructor del controllador  */
     public function __construct()
     {
-        $this->existsUser = SessionManager::read('user_id') !== false ?  true : false;
+        $this->existsUser = SessionManager::read('user') !== false ?  true : false;
     }
-    public function add()
+
+    /**Vista para crear una tarea */
+    public function createTaskView()
     {
-        if ($this->existsUser) {
-            $user_id = SessionManager::read('user_id');
-            SessionManager::write('user', User::getDataUser($user_id));
-            return view('content.add')->with(['listProvinces' => Provinces::getProvinces(), 'operarios' => User::getAllOperarios()]);
-        } else {
+        if (!$this->existsUser) {
             return redirect()->route('login');
         }
+        if (!Utils::isAdmin()) {
+            return back();
+        }
+        return view('content.tasks.add')->with(['listProvinces' => Provinces::getProvinces(), 'operarios' => User::getAllOperarios()]);
     }
-    public function create(Request $request)
+
+    /**Funcion que recibe los valores enviados del formulario de agregar tareas */
+    public function createTask(Request $request)
     {
         if ($request['btnFrom'] != 0) {
             $inputs = $request->except('_token');
-            $formValidado = self::validateFormAdd($inputs);
 
-            if (!$formValidado->hasErrors()) {
-                $inputsOld = array_map(function ($campo) {
-                    Validator::sanitizeInput($campo);
-                    return $campo;
-                }, $inputs);
+            $formValidado = self::validateForm($inputs);
 
-                return redirect()->route('addTask')->with(['error' => $formValidado->getErrorHandler(), 'old' => $inputsOld]);
-            } else {
-                $inputs['user_id'] = SessionManager::read('user_id');
-                if (Task::create($inputs)) {
-                    return redirect()->route('listTask');
-                } else {
-                    return redirect()->route('addTask');
-                }
-            }
-        } else {
-            return redirect()->route('listTask');
-        }
-    }
-    private static function validateFormAdd($request)
-    {
-        $validator = new Validator();
-
-        $validator->validateName($request['firstName'], 'firstName');
-        $validator->validateName($request['lastName'], 'lastName');
-        $validator->validateNifcif($request['nif_cif'], 'nif_cif');
-        $validator->validatePhoneNumber($request['phoneNumber'], 'phoneNumber');
-        $validator->validateEmail($request['email'], 'email');
-        $listProvinces = Provinces::getProvinces();
-        $validator->validateProvinces($request['province_id'], $listProvinces, 'province_id');
-        $validator->validatePostalCode($request['codigoPostal'], $request['province_id'], $listProvinces, 'codigoPostal');
-        $validator->validateOperario($request['operario'], User::getAllOperarios());
-        $validator->validateStatus($request['status_task'], 'status_task');
-        $validator->validateDate($request['date_task'], 'date_task');
-        $validator->validateText($request['direccion'], 'direccion');
-        $validator->validateText($request['location'], 'location');
-        $validator->validateText($request['description'], 'description');
-        return $validator;
-    }
-
-
-    public function list(?int $page = 1)
-    {
-        request('status') ? $status = request('status') : $status = false;
-        if ($this->existsUser) {
-            $limit['reg'] = self::$reg;
-            $limit['init'] = ($page - 1) * self::$reg;
-
-            if (!$status) {
-                $task = self::getTasksTable($limit);
-                $numReg = Task::numRegister();
-            } else {
-                $param = ['status_task' => $status];
-                $task = self::getTasksTable($limit, $param);
-                $numReg = Task::numRegister($param);
-            }
-
-            $totalpag = ceil($numReg / self::$reg);
-            // *Si la pagina es mayor a las totales, se mostrara siempre la ultima pagina con datos
-            if ($page >= $totalpag) {
-                $limit['init'] = ($totalpag - 1) * self::$reg;
-                $page = $totalpag;
-            }
-
-            return view('content.table')->with(['tasks' => $task, 'page' => $page, 'total' => $totalpag, 'status' => $status]);
-        } else {
-            return redirect()->route('login');
-        }
-    }
-    public function edit($id)
-    {
-        if ($this->existsUser) {
-            $task = Task::find($id);
-            if ($task['result']) {
-
-                // * Cambiar el tipo de dato de DateTime a Date *  
-                $date = new DateTime($task['data']['date_task']);
-                $task['data']['date_task'] =  htmlspecialchars($date->format("Y-m-d"));
-
-                return view('content.update')->with(['listProvinces' => Provinces::getProvinces(), 'task' => $task['data'], 'operarios' => User::getAllOperarios()]);
-            } else {
-                // ? Redirigir con alguna informacion (feedback) para el usuario ?
-                return redirect()->route('listTask');
-            }
-        } else {
-            // ? Redirigir si no se encuentra un usuario. (feedback)? 
-            return redirect()->route('login');
-        }
-    }
-    public function update($id, Request $request)
-    {
-        if ($request['btnFrom'] != 0) {
-            $inputs = $request->except('_token');
-            $formValidado = self::validateFromUpdate($inputs);
             if (!$formValidado->hasErrors()) {
                 unset($inputs['archivePdf']);
                 unset($inputs['archiveImg']);
@@ -142,65 +57,185 @@ class TaskController
                     Validator::sanitizeInput($campo);
                     return $campo;
                 }, $inputs);
-                return redirect()->route('editask', ['id' => $id])->with(['error' => $formValidado->getErrorHandler(), 'old' => $inputsOld]);
+                return redirect()->route('addTask')->with(['error' => $formValidado->getErrorHandler(), 'old' => $inputsOld]);
             } else {
 
+                $task_id = Task::lastID() + 1;
+
                 if (isset($_FILES['archivePdf']) && $_FILES['archivePdf']['error'] === UPLOAD_ERR_OK) {
-                    $inputs['archivePdf'] = self::AddArchive($id, 'archivePdf', 'pdf');
+                    $inputs['archivePdf'] = self::AddArchive($task_id, 'archivePdf', 'pdf');
                 }
                 if (isset($_FILES['archiveImg']) && $_FILES['archiveImg']['error'] === UPLOAD_ERR_OK) {
-                    $inputs['archiveImg'] = self::AddArchive($id, 'archiveImg', 'img');;
+                    $inputs['archiveImg'] = self::AddArchive($task_id, 'archiveImg', 'img');
                 }
                 //*Eliminar inputs innecesarios
                 unset($inputs['btnFrom']);
-                $update = Task::update($id, $inputs);
-                if ($update['result']) {
-                    return redirect()->route('listTask');
+
+                if (Task::create($inputs)) {
+                    return redirect()->route('readTasks');
+                } else {
+                    return redirect()->route('addTask');
                 }
             }
         } else {
-            return redirect()->route('listTask');
+            return redirect()->route('readTasks');
+        }
+    }
+    /**Vista para listar las tareas */
+    public function readTaskTableView(?int $page = 1)
+    {
+        if (!$this->existsUser) {
+            return redirect()->route('login');
+        }
+
+        $params = [];
+
+        $paramsToCheck = ['task_id', 'status_task', 'operario'];
+
+        foreach ($paramsToCheck as $paramName) {
+            if (isset($_GET[$paramName])) {
+                $params[$paramName] = $_GET[$paramName];
+            }
+        }
+
+        $limit['reg'] = self::$reg;
+        $limit['init'] = ($page - 1) * self::$reg;
+        $numReg = Task::numRegister($params);
+
+        if ($numReg == 0) {
+            $params = [];
+            $numReg = Task::numRegister($params);
+        }
+
+        $totalpag = ceil($numReg / self::$reg);
+
+        if ($page >= $totalpag) {
+            $limit['init'] = ($totalpag - 1) * self::$reg;
+            $page = $totalpag;
+        }
+
+        $task = self::getTasksTable($limit, $params);
+
+        return view('content.tasks.table')->with([
+            'tasks' => $task,
+            'page' => $page,
+            'total' => $totalpag,
+            'params' => $params
+        ]);
+    }
+
+    /**Vista para editar las tareas */
+    public function updateTaskView($id)
+    {
+        if (!$this->existsUser) {
+            return redirect()->route('login');
+        }
+        $task = Task::find($id);
+        if ($task['result']) {
+            $id = SessionManager::read('user', 'id');
+            $role = SessionManager::read('user', 'role');
+            if ($id != $task['data']['operario'] && $role != 1) {
+                return back();
+            }
+            // * Cambiar el tipo de dato de DateTime a Date *  
+            $date = new DateTime($task['data']['date_task']);
+            $task['data']['date_task'] =  htmlspecialchars($date->format("Y-m-d"));
+
+            return view('content.tasks.update')->with(['listProvinces' => Provinces::getProvinces(), 'task' => $task['data'], 'operarios' => User::getAllOperarios()]);
+        } else {
+            return redirect()->route('readTasks');
+        }
+    }
+    /**Funcion que recibe la id de la tarea y los datos a actualizar */
+    public function updateTask($id, Request $request)
+    {
+        if ($request['btnFrom'] != 0) {
+
+            $inputs = $request->except('_token');
+            //*Eliminar input innecesario para el update
+            unset($inputs['btnFrom']);
+
+            $inputs = array_map(function ($campo) {
+                Validator::sanitizeInput($campo);
+                return $campo;
+            }, $inputs);
+            $formValidado = self::validateForm($inputs);
+            if (!$formValidado->hasErrors()) {
+                unset($inputs['archivePdf']);
+                unset($inputs['archiveImg']);
+                return redirect()->route('editask', ['id' => $id])->with(['error' => $formValidado->getErrorHandler(), 'old' => $inputs]);
+            } else {
+                $id_user = SessionManager::read('user', 'id');
+                $id_operario = Task::find($id, ['operario'])['data']['operario'];
+                self::handleFileUploads($id, $inputs);
+
+                if (Utils::isAdmin()) {
+                    Task::update($id, $inputs);
+                } elseif ($id_user == $id_operario[0]) {
+                    Task::update($id, ['status_task' => $inputs['status_task'], 'feedback_task' => $inputs['feedback_task'], 'date_task' => $inputs['date_task'], 'archivePdf' => $inputs['archivePdf'], 'archiveImg' => $inputs['archiveImg']]);
+                }
+                return to_route('readTasks');
+            }
+        } else {
+            return to_route('readTasks');
+        }
+    }
+    // Función para manejar la carga de archivos
+    private function handleFileUploads($id, &$inputs)
+    {
+        if (isset($_FILES['archivePdf']) && $_FILES['archivePdf']['error'] === UPLOAD_ERR_OK) {
+            $inputs['archivePdf'] = self::AddArchive($id, 'archivePdf', 'pdf');
+        }
+
+        if (isset($_FILES['archiveImg']) && $_FILES['archiveImg']['error'] === UPLOAD_ERR_OK) {
+            $inputs['archiveImg'] = self::AddArchive($id, 'archiveImg', 'img');
         }
     }
 
-    public function show($id)
+    /**Muestra todos los datos de la tarea seleccionada */
+    public function readTaskDetailsView($id)
     {
-        if ($this->existsUser) {
-            SessionManager::write('user', User::getDataUser(SessionManager::read('user_id')));
-            $task = Task::find($id);
-            if ($task['result']) {
-                $task = $task['data'];
-                $task['operario'] = User::getAllOperarios()[$task['operario']];
-                $task['province_id'] = Provinces::getProvinces()[$task['province_id']];
-                $task['statusDescription'] = self::status[$task['status_task']];
-                return view('content.show')->with('task', $task);
-            }
-        } else {
+        if (!$this->existsUser) {
             return redirect()->route('login');
         }
-    }
-    public function confirm($id)
-    {
-        if ($this->existsUser) {
-            //SessionManager::write('user', User::getDataUser(SessionManager::read('user_id')));
-            $task = Task::find($id);
-            if ($task['result']) {
-                $task = $task['data'];
-                $task['operario'] = User::getAllOperarios()[$task['operario']];
-                $task['province_id'] = Provinces::getProvinces()[$task['province_id']];
-                $task['statusDescription'] = self::status[$task['status_task']];
-                return view('content.confirm')->with('task', $task);
-            }
+        $task = Task::find($id);
+        if ($task['result']) {
+            $task = $task['data'];
+            $task['nombreOperario'] =  User::getAllOperarios()[$task['operario']];
+            $task['province_id'] = Provinces::getProvinces()[$task['province_id']];
+            $task['statusDescription'] = self::status[$task['status_task']];
+            return view('content.tasks.show')->with('task', $task);
         } else {
-            return redirect()->route('login');
+            return back();
         }
     }
-    public function delete($id, Request $request)
+
+    /**Vista para la confirmacionde de la eliminacion de una tarea */
+    public function deleteTaskView($id)
     {
+        if (!$this->existsUser) {
+            return redirect()->route('login');
+        }
+        if (!Utils::isAdmin()) {
+            return back();
+        }
+        $task = Task::find($id);
+        if ($task['result']) {
+            $task = $task['data'];
+            $task['operario'] = User::getAllOperarios()[$task['operario']];
+            $task['province_id'] = Provinces::getProvinces()[$task['province_id']];
+            $task['statusDescription'] = self::status[$task['status_task']];
+            return view('content.tasks.confirm')->with('task', $task);
+        }
+    }
+    /**Funcion que elimina la tarea despues de la confirmacion */
+    public function deleteTask($id, Request $request)
+    {
+
         if ($request['btnFrom'] != 0) {
             $delete = Task::delete($id);
             if ($delete['result']) {
-                return redirect()->route('listTask');
+                return redirect()->route('readTasks');
             } else {
                 return redirect()->route('showTask', ['id' => $id]);
             }
@@ -208,6 +243,10 @@ class TaskController
             return redirect()->route('showTask', ['id' => $id]);
         }
     }
+    /**Funcion que, crea la carpeta donde se guardaran los archivos de la tarea si es
+     * que no existe, cambia el nombre de los archivos subidos y guarda los archivos
+     * en a carpeta de su respectiva tarea 
+     */
     private function AddArchive($id, $nameArchive, $mimeType)
     {
         //* Busca la carpeta de la tarea. Si esta no existe se le creara una.
@@ -235,6 +274,24 @@ class TaskController
         return false;
     }
 
+    public function getArchive($id)
+    {
+        $name = isset($_GET['name']) ? $_GET['name'] : false;
+        $pdfPath = storage_path('app\\private\\Task' . $id . '\\' . $name);
+        if (file_exists($pdfPath)) {
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . basename($pdfPath) . '"');
+            readfile($pdfPath);
+            exit;
+        } else {
+            return redirect()->route('showTask', ['id' => $id]);
+        }
+    }
+
+    /**Funcion que tomas los datos de las tareas para la tabla, se creara un array
+     * donde alamacenas los datos recibidos y se modificaran para mejor experiencia
+     * para el usuario 
+     */
     private static function getTasksTable($limit, $param = false)
     {
         $dataToTable = [
@@ -266,11 +323,9 @@ class TaskController
                 $task['province_id'] = $provinces[$task['province_id']];
             }
             return $query['data'];
-        } else {
-            //dd($data['message']);
         }
     }
-    private function validateFromUpdate($request)
+    private function validateForm($request)
     {
         $validator = new Validator();
         $validator->validateText($request['description'], 'description');

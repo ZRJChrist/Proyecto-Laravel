@@ -32,7 +32,7 @@ class Validator
      * @param string $value, valor del input name/nombre
      * 
      */
-    public  function validateName($value, $field = 'name')
+    public function validateName($value, $field = 'name')
     {
         $value = self::sanitizeInput($value);
         if (empty($value) || $value == '') {
@@ -61,6 +61,17 @@ class Validator
 
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
             $this->errorHandler->addError($field, 'Debe ser un email valido');
+            return false;
+        }
+        return true;
+    }
+
+    public function validateRole($value, $field = 'role')
+    {
+
+        $value = self::sanitizeInput($value);
+        if ($value != 1 && $value != 0) {
+            $this->errorHandler->addError($field, 'Valor desconocido');
             return false;
         }
         return true;
@@ -105,6 +116,12 @@ class Validator
      */
     public function validatePasswordConfirmation($password, $passwordConfirmation, $field = 'passwordConfirmation')
     {
+        $password = self::sanitizeInput($password);
+
+        if (!self::validateEmpty($passwordConfirmation)) {
+            $this->errorHandler->addError($field, 'Campo requerido ');
+            return false;
+        }
         if ($passwordConfirmation != $password) {
             $this->errorHandler->addError($field, 'Debe conincidir con la contraseña');
             return false;
@@ -159,6 +176,8 @@ class Validator
     }
     public function validatePostalCode($postalCode, $provinceId, $listProvince, $field = 'postalCode')
     {
+        $postalCode = self::sanitizeInput($postalCode);
+
         if (!self::validateEmpty($postalCode)) {
             $this->errorHandler->addError($field, 'Campo requerido');
             return false;
@@ -198,6 +217,7 @@ class Validator
             $this->errorHandler->addError($field, 'Campo obligatorio');
             return false;
         }
+
         if (!array_key_exists($id, $listOperarios)) {
             $this->errorHandler->addError($field, 'Valor desconocido');
             return false;
@@ -213,6 +233,8 @@ class Validator
      */
     public function validateNifcif($dni, $field = 'nifCif')
     {
+        $dni = self::sanitizeInput($dni);
+
         $cif = strtoupper($dni);
         for ($i = 0; $i < 9; $i++) {
             $num[$i] = substr($cif, $i, 1);
@@ -307,6 +329,8 @@ class Validator
     }
     public function validateText($value, $field)
     {
+        $value = self::sanitizeInput($value);
+
         if (!self::validateEmpty($value))
             $this->errorHandler->addError($field, 'Campo requerido');
     }
