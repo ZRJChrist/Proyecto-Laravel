@@ -2,35 +2,75 @@
 
 namespace App\Models;
 
+/**
+ * Autor: @ZRJChrist
+ *
+ * Descripción: Se utiliza para realizar validaciones comunes en diferentes campos de formularios. Proporciona métodos para validar nombres, correos 
+ * electrónicos, roles, contraseñas, confirmación de contraseñas, provincias, estados, fechas, códigos postales, números de teléfono, operarios, NIF/CIF,
+ *  archivos y campos de texto. También incluye métodos auxiliares para sanitizar la entrada y verificar si un valor no está vacío.
+ *  
+ * Fecha de creación: 23/11/2023
+ * 
+ */
 class Validator
 {
     private $errorHandler;
+
+    /**
+     * Constructor de la clase. Inicializa el manejador de errores.
+     */
     public function __construct()
     {
         $this->errorHandler = new ErrorHandler;
     }
+
+    /**
+     * Método estático para sanear la entrada eliminando espacios y caracteres especiales.
+     *
+     * @param string $data Datos a sanear.
+     * @return string Datos saneados.
+     */
     public static function sanitizeInput($data)
     {
         $data = trim($data);
         $data = htmlspecialchars($data);
         return $data;
     }
+
+    /**
+     * Obtiene la lista de errores del manejador de errores asociado.
+     *
+     * @return array Lista de errores.
+     */
     public function getErrors()
     {
         return $this->errorHandler->getErrorsList();
     }
+    /**
+     * Verifica si hay errores en el manejador de errores asociado.
+     *
+     * @return bool Retorna true si hay errores, de lo contrario, false.
+     */
     public function hasErrors()
     {
         return $this->errorHandler->hasErrors();
     }
+
+    /**
+     * Obtiene el manejador de errores asociado a esta instancia.
+     *
+     * @return ErrorHandler Instancia del manejador de errores.
+     */
     public function getErrorHandler()
     {
         return $this->errorHandler;
     }
     /**
-     * Funcion para validar un input de nombre
-     * @param string $value, valor del input name/nombre
-     * 
+     * Valida un campo de nombre.
+     *
+     * @param string $value Valor del campo de nombre.
+     * @param string $field Nombre del campo.
+     * @return bool Retorna true si la validación es exitosa, de lo contrario, false.
      */
     public function validateName($value, $field = 'name')
     {
@@ -47,8 +87,11 @@ class Validator
     }
 
     /**
-     * Funcion para validar un input Email
-     * @param string $value, valor del input email
+     * Valida un campo de email.
+     *
+     * @param string $value Valor del campo de email.
+     * @param string $field Nombre del campo.
+     * @return bool Retorna true si la validación es exitosa, de lo contrario, false.
      */
     public function validateEmail($value, $field = 'email')
     {
@@ -65,7 +108,13 @@ class Validator
         }
         return true;
     }
-
+    /**
+     * Valida un campo de role
+     *
+     * @param string $value Valor del campo de role.
+     * @param string $field Nombre del campo.
+     * @return bool Retorna true si la validación es exitosa, de lo contrario, false.
+     */
     public function validateRole($value, $field = 'role')
     {
 
@@ -145,7 +194,14 @@ class Validator
         }
         return true;
     }
-    public function validateStatus($status, $field = 'state')
+    /**
+     * Valida un campo de Estado.
+     *
+     * @param string $status Valor del campo de Estato.
+     * @param string $field Nombre del campo.
+     * @return bool Retorna true si la validación es exitosa, de lo contrario, false.
+     */
+    public function validateStatus($status, $field = 'status')
     {
         if ($status == 'null') {
             $this->errorHandler->addError($field, 'Campo obligatorio');
@@ -160,6 +216,13 @@ class Validator
         }
         return true;
     }
+    /**
+     * Valida un campo de Estado.
+     *
+     * @param string $date Valor del campo de date_task.
+     * @param string $field Nombre del campo.
+     * @return bool Retorna true si la validación es exitosa, de lo contrario, false.
+     */
     public function validateDate($date, $field = 'date_task')
     {
         if (!self::validateEmpty($date)) {
@@ -174,6 +237,15 @@ class Validator
             return false;
         }
     }
+    /**
+     * Valida un campo de Codigo Postal.
+     *
+     * @param $postalCode Valor del campo de postalCode.
+     * @param $provinceId Valor del campo de provincia
+     * @param $listProvince array que contiene los 2 primeros digitos de las provincias en la llave ej: [21]=>'Huelva'
+     * @param string $field Nombre del campo.
+     * @return bool Retorna true si la validación es exitosa, de lo contrario, false.
+     */
     public function validatePostalCode($postalCode, $provinceId, $listProvince, $field = 'postalCode')
     {
         $postalCode = self::sanitizeInput($postalCode);
@@ -297,6 +369,14 @@ class Validator
         // If it has not been verified yet, return error
         return false;
     }
+    /**
+     * Valida un archivo basado en su tipo de contenido.
+     *
+     * @param string $archiveMimeType Tipo de contenido del archivo.
+     * @param string $mimeType Tipo de contenido esperado ('image' o 'pdf').
+     * @param string $field Nombre del campo.
+     * @return bool Retorna true si la validación es exitosa, de lo contrario, false.
+     */
     public function validateArchive($archiveMimeType, $mimeType, $field)
     {
         if ($mimeType == 'image') {
@@ -319,7 +399,12 @@ class Validator
         }
         return true;
     }
-
+    /**
+     * Método estático para validar si un valor no está vacío.
+     *
+     * @param mixed $value Valor a validar.
+     * @return bool Retorna true si el valor no está vacío, de lo contrario, false.
+     */
     public static function validateEmpty($value)
     {
         if (empty($value) || $value == '' || $value == null) {
@@ -327,6 +412,12 @@ class Validator
         }
         return true;
     }
+    /**
+     * Valida un campo de texto.
+     *
+     * @param string $value Valor del campo de texto.
+     * @param string $field Nombre del campo.
+     */
     public function validateText($value, $field)
     {
         $value = self::sanitizeInput($value);

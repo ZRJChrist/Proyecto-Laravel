@@ -5,6 +5,14 @@ namespace App\Models;
 use PDO;
 use PDOException;
 
+/**
+ * Autor: @ZRJChrist
+ *
+ * Descripción:Clase que gestiona la conexión a la base de datos mediante PDO.
+ * Esta clase sigue el patrón Singleton para garantizar una única instancia de la conexión.
+ * 
+ * Fecha de creación: 20/11/2023
+ */
 class ConectDB
 {
     private static $instance;

@@ -59,21 +59,23 @@
                             </div>
                         </li>
                         <li>
-                            <div class="dropdown">
-                                <a href="#"
-                                    class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle ps-4"
-                                    id="dropdownStatus" data-bs-toggle="dropdown">
-                                    <i class="fa-solid fa-users-gear pe-2"></i>Operators
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-dark text-small shadow"
-                                    aria-labelledby="dropdownStatus" style="">
-                                    @foreach (Utils::getOperators() as $key => $operator)
-                                        <li><a class="dropdown-item"
-                                                href="{{ route('readTasks', ['operario' => $key]) }}">{{ $operator }}</a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
+                            @if (Utils::isAdmin())
+                                <div class="dropdown">
+                                    <a href="#"
+                                        class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle ps-4"
+                                        id="dropdownStatus" data-bs-toggle="dropdown">
+                                        <i class="fa-solid fa-users-gear pe-2"></i>Operators
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-dark text-small shadow"
+                                        aria-labelledby="dropdownStatus" style="">
+                                        @foreach (Utils::getOperators() as $key => $operator)
+                                            <li><a class="dropdown-item"
+                                                    href="{{ route('readTasks', ['operario' => $key]) }}">{{ $operator }}</a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         </li>
                     </ul>
                 </div>
